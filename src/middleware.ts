@@ -23,7 +23,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
 };
 
-const PUBLIC_ROUTES = ['/login', '/signup'];
+const PUBLIC_ROUTES = ['/login', '/signup', '/welcome'];
 
 // ─── JWT secret — must match appsettings.json Jwt:Key ────────────────────────
 const JWT_SECRET = new TextEncoder().encode(
