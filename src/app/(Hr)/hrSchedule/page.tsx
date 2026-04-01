@@ -5,7 +5,6 @@ import { Toaster, toast } from 'sonner';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { HRScheduleUI, EmployeeSchedule, ScheduleSavePayload } from '../../../components/(Hr)/Schedule/HrSchedule';
 
-// Helper to get the base URL from env
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function HRSchedulePage() {
@@ -15,7 +14,6 @@ export default function HRSchedulePage() {
   const fetchRoster = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Replaced localhost with env variable
       const res = await fetch(`${API_BASE_URL}/api/Schedule/roster`);
       if (res.ok) {
         const data: EmployeeSchedule[] = await res.json();
@@ -34,18 +32,12 @@ export default function HRSchedulePage() {
     }
   }, []);
 
-  // Initial fetch on mount
   useEffect(() => { 
     fetchRoster(); 
   }, [fetchRoster]);
 
-  /**
-   * Handles the saving of new deployment parameters.
-   * Updates the Schedule and initializes/verifies the Leave Profile in the Employee table.
-   */
   const handleSave = async (payload: ScheduleSavePayload) => {
     try {
-      // Replaced localhost with env variable
       const response = await fetch(`${API_BASE_URL}/api/Schedule/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,7 +48,6 @@ export default function HRSchedulePage() {
         toast.success("Deployment Synchronized", {
           description: `Schedule and Leave Profile updated for Agent ID: ${payload.employeeId}`
         });
-        // Refresh the UI with the latest data
         fetchRoster();
       } else {
         const errorData = await response.json();

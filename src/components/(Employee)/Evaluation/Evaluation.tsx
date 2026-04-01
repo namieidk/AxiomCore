@@ -1,10 +1,9 @@
-// Evaluation.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from '../../../components/(Employee)/Dashboard/Sidebar';
 import { EvaluationForm } from './EvaluationForm';
-import { Users, UserCheck, ShieldAlert, ChevronRight, ArrowLeft, User, Lock } from 'lucide-react';
+import { Users, UserCheck, ShieldAlert, ChevronRight, ArrowLeft, User, Lock, Menu, X } from 'lucide-react';
 
 export interface Agent {
   id: string;
@@ -25,7 +24,6 @@ interface EvaluationViewProps {
   isSubmitting: boolean;
 }
 
-// Maps the card id → EvaluationForm type key
 const TYPE_TO_FORM: Record<string, 'peer' | 'manager' | 'hr'> = {
   peer:       'peer',
   managerial: 'manager',
@@ -42,7 +40,6 @@ export function EvaluationView({
   const isManager = userRole === 'manager';
   const isHR      = userRole === 'hr';
 
-  // Resolve which form criteria set to use
   const formType = selectedType ? (TYPE_TO_FORM[selectedType] ?? 'peer') : 'peer';
 
   if (selectedType && targetAgent) {
@@ -66,17 +63,29 @@ export function EvaluationView({
   return (
     <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase">
       <Sidebar />
-      <section className="flex-1 p-12 overflow-y-auto bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617]">
+      
+      {/* Content Section with Responsive Padding */}
+      <section className="flex-1 p-6 lg:p-12 overflow-y-auto bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617] scrollbar-hide">
+        
+        {/* Top Spacer for Mobile Toggle button area */}
+        <div className="h-16 lg:hidden" />
+
         <div className="max-w-[1400px] mx-auto">
           {selectedType ? (
             <>
-              <button onClick={() => setSelectedType(null)} className="flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-white mb-8 transition-all">
-                <ArrowLeft size={14}/> BACK TO HUB
+              <button 
+                onClick={() => setSelectedType(null)} 
+                className="flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-white mb-6 lg:mb-8 transition-all group"
+              >
+                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform"/> BACK TO HUB
               </button>
-              <header className="mb-12">
-                <h2 className="text-3xl font-black text-white italic">SELECT <span className="text-indigo-500">SUBJECT</span></h2>
+              
+              <header className="mb-8 lg:mb-12">
+                <h2 className="text-2xl lg:text-3xl font-black text-white italic tracking-tighter">
+                  SELECT <span className="text-indigo-500">SUBJECT</span>
+                </h2>
                 {!loading && (
-                  <p className="text-[10px] font-bold text-slate-500 tracking-[0.2em] mt-2 italic">
+                  <p className="text-[9px] lg:text-[10px] font-bold text-slate-500 tracking-[0.2em] mt-2 italic opacity-60">
                     DEPT: {user.department} • CATEGORY: {selectedType.toUpperCase()}
                   </p>
                 )}
@@ -88,7 +97,7 @@ export function EvaluationView({
                   <p className="text-[10px] font-black text-indigo-500 tracking-[0.5em]">SCANNING DATABASE...</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                   {agents.map((agent) => {
                     const isLocked = agent.alreadyEvaluated;
                     return (
@@ -96,24 +105,24 @@ export function EvaluationView({
                         key={agent.id}
                         disabled={isLocked}
                         onClick={() => setTargetAgent(agent)}
-                        className={`relative overflow-hidden bg-slate-900/40 border p-6 rounded-[2rem] text-left transition-all flex items-center gap-5 group
-                          ${isLocked ? 'border-red-500/20 opacity-60 cursor-not-allowed' : 'border-white/5 hover:border-indigo-500/50'}`}
+                        className={`relative overflow-hidden bg-slate-900/40 border p-5 lg:p-6 rounded-[1.5rem] lg:rounded-[2rem] text-left transition-all flex items-center gap-4 lg:gap-5 group
+                          ${isLocked ? 'border-red-500/20 opacity-60 cursor-not-allowed' : 'border-white/5 hover:border-indigo-500/50 hover:bg-slate-900/60'}`}
                       >
                         {isLocked && (
                           <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] flex items-center justify-center z-10">
                             <div className="bg-red-500/20 border border-red-500/40 px-3 py-1 rounded-full flex items-center gap-2">
                               <Lock size={10} className="text-red-400" />
-                              <span className="text-[8px] font-black text-red-400 tracking-tighter">MONTHLY LIMIT REACHED</span>
+                              <span className="text-[8px] font-black text-red-400 tracking-tighter">LIMIT REACHED</span>
                             </div>
                           </div>
                         )}
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all
+                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0 transition-all
                           ${isLocked ? 'bg-slate-800 text-slate-500' : 'bg-white/5 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-slate-950'}`}>
-                          <User size={24}/>
+                          <User size={20} className="lg:w-6 lg:h-6"/>
                         </div>
-                        <div>
-                          <h4 className={`text-sm font-black italic tracking-tighter ${isLocked ? 'text-slate-500' : 'text-white'}`}>{agent.name}</h4>
-                          <p className="text-[9px] font-bold text-slate-500 tracking-widest">{isLocked ? 'AUDIT COMPLETE' : `${agent.role} • ${agent.id}`}</p>
+                        <div className="min-w-0">
+                          <h4 className={`text-sm font-black italic tracking-tighter truncate ${isLocked ? 'text-slate-500' : 'text-white'}`}>{agent.name}</h4>
+                          <p className="text-[8px] lg:text-[9px] font-bold text-slate-500 tracking-widest truncate">{isLocked ? 'AUDIT COMPLETE' : `${agent.role} • ${agent.id}`}</p>
                         </div>
                       </button>
                     );
@@ -123,12 +132,12 @@ export function EvaluationView({
             </>
           ) : (
             <>
-              <header className="mb-12">
-                <p className="text-[10px] font-black text-indigo-500 tracking-[0.4em] mb-2 uppercase">PERFORMANCE OVERSIGHT</p>
-                <h1 className="text-4xl font-black text-white tracking-tighter italic">EVALUATION <span className="text-indigo-500">CENTER</span></h1>
+              <header className="mb-8 lg:mb-12">
+                <p className="text-[9px] lg:text-[10px] font-black text-indigo-500 tracking-[0.4em] mb-2 uppercase">PERFORMANCE OVERSIGHT</p>
+                <h1 className="text-3xl lg:text-4xl font-black text-white tracking-tighter italic">EVALUATION <span className="text-indigo-500">CENTER</span></h1>
               </header>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl">
-                {/* peer card — employees see "PEER-TO-PEER", managers see "SUBORDINATES" */}
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 max-w-6xl">
                 <TypeCard
                   id="peer"
                   title={isManager ? 'SUBORDINATES' : 'PEER-TO-PEER'}
@@ -138,7 +147,6 @@ export function EvaluationView({
                   onClick={setSelectedType}
                 />
 
-                {/* managerial card — only visible to non-managers (employees evaluate up) */}
                 {!isManager && !isHR && (
                   <TypeCard
                     id="managerial"
@@ -150,7 +158,6 @@ export function EvaluationView({
                   />
                 )}
 
-                {/* hr card — always visible */}
                 <TypeCard
                   id="hr"
                   title="HR COMPLIANCE"
@@ -170,14 +177,21 @@ export function EvaluationView({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const TypeCard = ({ id, title, desc, icon: Icon, color, onClick }: any) => (
-  <button onClick={() => onClick(id)} className="group bg-slate-900/40 border border-white/5 p-10 rounded-[3.5rem] text-left hover:border-indigo-500 transition-all flex flex-col justify-between h-[320px] shadow-2xl relative overflow-hidden">
-    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity"><Icon size={120} /></div>
-    <div>
-      <div className={`${color} mb-6 transition-transform duration-500 group-hover:scale-110`}><Icon size={48} /></div>
-      <h3 className="text-xl font-black text-white mb-2 italic tracking-tighter">{title}</h3>
-      <p className="text-[10px] font-bold text-slate-500 tracking-widest leading-relaxed">{desc}</p>
+  <button 
+    onClick={() => onClick(id)} 
+    className="group bg-slate-900/40 border border-white/5 p-8 lg:p-10 rounded-[2.5rem] lg:rounded-[3.5rem] text-left hover:border-indigo-500 transition-all flex flex-col justify-between h-[280px] lg:h-[320px] shadow-2xl relative overflow-hidden"
+  >
+    <div className="absolute top-0 right-0 p-6 lg:p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+      <Icon className="w-20 h-20 lg:w-[120px] lg:h-[120px]" />
     </div>
-    <div className="flex items-center gap-2 text-[10px] font-black text-indigo-500 tracking-widest group-hover:gap-4 transition-all uppercase">
+    <div>
+      <div className={`${color} mb-4 lg:mb-6 transition-transform duration-500 group-hover:scale-110`}>
+        <Icon className="w-10 h-10 lg:w-12 lg:h-12" />
+      </div>
+      <h3 className="text-lg lg:text-xl font-black text-white mb-2 italic tracking-tighter">{title}</h3>
+      <p className="text-[9px] lg:text-[10px] font-bold text-slate-500 tracking-widest leading-relaxed">{desc}</p>
+    </div>
+    <div className="flex items-center gap-2 text-[9px] lg:text-[10px] font-black text-indigo-500 tracking-widest group-hover:gap-4 transition-all uppercase">
       INITIATE AUDIT <ChevronRight size={14} />
     </div>
   </button>

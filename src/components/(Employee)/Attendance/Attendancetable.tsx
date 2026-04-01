@@ -71,7 +71,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
     setCurrentPage(1);
   }, [startDate, endDate]);
 
-  // 3. CALCULATE METRICS (Based on filtered data)
+  // 3. CALCULATE METRICS
   const metrics = useMemo(() => {
     if (filteredLogs.length === 0) return { total: 0, lates: 0, score: 0 };
 
@@ -104,7 +104,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
     return (
       <div className="p-20 text-center flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-        <p className="text-indigo-400 font-black uppercase tracking-[0.3em] text-xs text-shadow-glow">Syncing Encrypted Logs...</p>
+        <p className="text-indigo-400 font-black uppercase tracking-[0.3em] text-shadow-glow text-xs">Syncing Encrypted Logs...</p>
       </div>
     );
   }
@@ -112,8 +112,8 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
   return (
     <div className="space-y-8 animate-in fade-in duration-700 uppercase">
       
-      {/* METRICS CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* METRICS CARDS - Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <MetricBox 
           label="Total Hours" 
           val={metrics.total.toFixed(1)} 
@@ -134,12 +134,12 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
         />
       </div>
 
-      {/* LOGS TABLE */}
-      <div className="bg-indigo-950/20 border border-indigo-500/10 rounded-[2.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+      {/* LOGS TABLE - Horizontal Scroll for Mobile */}
+      <div className="bg-indigo-950/20 border border-indigo-500/10 rounded-3xl lg:rounded-[2.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
+        <div className="overflow-x-auto scrollbar-hide">
+          <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
-              <tr className="border-b border-indigo-500/10 bg-indigo-500/5 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/60">
+              <tr className="border-b border-indigo-500/10 bg-indigo-500/5 text-[9px] lg:text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400/60">
                 <th className="p-6">Shift Window</th>
                 <th className="p-6">Time In/Out</th>
                 <th className="p-6 text-center">Regular</th>
@@ -165,7 +165,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
                         </div>
                       </td>
                       <td className="p-6">
-                        <div className="flex items-center gap-2 text-xs font-black">
+                        <div className="flex items-center gap-2 text-[10px] lg:text-xs font-black">
                           <span className="text-indigo-300">{new Date(log.clockInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           <span className="text-slate-600">→</span>
                           <span className={log.clockOutTime ? "text-slate-400" : "text-emerald-400 animate-pulse"}>
@@ -183,7 +183,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
                             </span>
                             <span className="text-slate-500">{Math.round(progress)}%</span>
                           </div>
-                          <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div className="w-28 lg:w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
                             <div 
                               className={`h-full transition-all duration-1000 ${progress >= 100 ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-indigo-500'}`} 
                               style={{ width: `${progress}%` }} 
@@ -205,9 +205,9 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
           </table>
         </div>
 
-        {/* PAGINATION FOOTER */}
-        <div className="p-6 bg-indigo-500/5 flex items-center justify-between border-t border-indigo-500/10">
-          <p className="text-[10px] text-indigo-400/50 font-black uppercase tracking-widest">
+        {/* PAGINATION FOOTER - Responsive Flex */}
+        <div className="p-6 bg-indigo-500/5 flex flex-col sm:flex-row items-center justify-between border-t border-indigo-500/10 gap-4">
+          <p className="text-[9px] lg:text-[10px] text-indigo-400/50 font-black uppercase tracking-widest text-center sm:text-left">
             Range: {indexOfFirstItem + 1} — {Math.min(indexOfLastItem, filteredLogs.length)} of {filteredLogs.length}
           </p>
           <div className="flex items-center gap-4">
@@ -218,7 +218,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
             >
               <ChevronLeft size={18} />
             </button>
-            <span className="text-[11px] font-black text-white px-2">
+            <span className="text-[10px] lg:text-[11px] font-black text-white px-2">
               PAGE {currentPage} <span className="text-slate-600 mx-1">/</span> {totalPages}
             </span>
             <button 
@@ -232,9 +232,10 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
         </div>
       </div>
 
-      <div className="flex items-start gap-4 p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-[2rem]">
+      {/* FOOTER NOTICE */}
+      <div className="flex items-start gap-4 p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-3xl">
         <AlertCircle className="w-5 h-5 text-indigo-400 flex-shrink-0" />
-        <p className="text-[11px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">
+        <p className="text-[10px] lg:text-[11px] text-slate-400 leading-relaxed font-bold uppercase tracking-tight">
           System Notice: Filtering updates performance metrics in real-time. Use range selection to audit specific billing cycles.
         </p>
       </div>
@@ -242,11 +243,12 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
   );
 };
 
+// HELPER COMPONENT
 const MetricBox = ({ label, val, unit, color }: { label: string, val: string, unit: string, color: string }) => (
-  <div className="bg-indigo-950/20 p-7 rounded-[2.5rem] border border-indigo-500/10 backdrop-blur-3xl shadow-xl group hover:border-indigo-500/30 transition-all">
-    <p className="text-[10px] font-black text-indigo-400/50 uppercase tracking-widest mb-1 group-hover:text-indigo-400 transition-colors">{label}</p>
-    <p className={`text-4xl font-black ${color} tracking-tighter uppercase italic`}>
-      {val} <span className="text-[10px] text-slate-600 font-bold tracking-normal ml-1 italic">{unit}</span>
+  <div className="bg-indigo-950/20 p-6 lg:p-7 rounded-3xl lg:rounded-[2.5rem] border border-indigo-500/10 backdrop-blur-3xl shadow-xl group hover:border-indigo-500/30 transition-all">
+    <p className="text-[9px] lg:text-[10px] font-black text-indigo-400/50 uppercase tracking-widest mb-1 group-hover:text-indigo-400 transition-colors">{label}</p>
+    <p className={`text-3xl lg:text-4xl font-black ${color} tracking-tighter uppercase italic truncate`}>
+      {val} <span className="text-[9px] lg:text-[10px] text-slate-600 font-bold tracking-normal ml-1 italic">{unit}</span>
     </p>
   </div>
 );

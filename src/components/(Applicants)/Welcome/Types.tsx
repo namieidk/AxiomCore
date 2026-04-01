@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { 
   Settings, 
@@ -7,7 +8,7 @@ import {
   Briefcase, 
   ShieldCheck, 
   ClipboardList,
-  LineChart
+  Headset
 } from "lucide-react";
 
 // ─── TYPES ────────────────────────────────────────────────────────────────────
@@ -26,14 +27,8 @@ export interface Job {
   badgeColor: string;
 }
 
-export interface FormState {
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-}
-
 export interface Theme {
+  dark: boolean;
   accent: string;
   accentSoft: string;
   accentBorder: string;
@@ -57,6 +52,59 @@ export interface Theme {
   gridline: string;
 }
 
+// ─── THEME CONFIGURATION ──────────────────────────────────────────────────────
+
+export const themes: { dark: Theme; light: Theme } = {
+  dark: {
+    dark: true,
+    bg: "#020617",
+    surface: "#0f172a",
+    surface2: "#1e293b",
+    text: "#f8fafc",
+    muted: "#94a3b8",
+    border: "rgba(255,255,255,0.06)",
+    accent: "#6366f1",
+    accentGlow: "rgba(99,102,241,0.35)",
+    accentSoft: "rgba(99,102,241,0.12)",
+    accentBorder: "rgba(99,102,241,0.4)",
+    accentWarm: "#f59e0b",
+    heroBg: "#020617",
+    navBg: "rgba(2,6,23,0.8)",
+    navBorder: "rgba(255,255,255,0.08)",
+    orb1: "#1e1b4b",
+    orb2: "#312e81",
+    gridline: "rgba(255,255,255,0.03)",
+    tagBg: "rgba(255,255,255,0.03)",
+    chipBg: "rgba(99,102,241,0.08)",
+    chipBorder: "rgba(99,102,241,0.2)",
+    shadow: "rgba(0,0,0,0.4)",
+  },
+  light: {
+    dark: false,
+    bg: "#f8fafc",
+    surface: "#ffffff",
+    surface2: "#f1f5f9",
+    text: "#0f172a",
+    muted: "#64748b",
+    border: "rgba(0,0,0,0.08)",
+    accent: "#4f46e5",
+    accentGlow: "rgba(79,70,229,0.2)",
+    accentSoft: "rgba(79,70,229,0.08)",
+    accentBorder: "rgba(79,70,229,0.3)",
+    accentWarm: "#d97706",
+    heroBg: "#ffffff",
+    navBg: "rgba(255,255,255,0.8)",
+    navBorder: "rgba(0,0,0,0.05)",
+    orb1: "#e0e7ff",
+    orb2: "#f5f3ff",
+    gridline: "rgba(0,0,0,0.02)",
+    tagBg: "#f1f5f9",
+    chipBg: "rgba(79,70,229,0.05)",
+    chipBorder: "rgba(79,70,229,0.15)",
+    shadow: "rgba(0,0,0,0.05)",
+  }
+};
+
 // ─── JOB DATA ─────────────────────────────────────────────────────────────────
 
 export const jobs: Job[] = [
@@ -68,8 +116,7 @@ export const jobs: Job[] = [
     shift: "Day Shift (8AM - 5PM)",
     location: "Davao City",
     slots: 2,
-    description:
-      "Oversee daily business operations, improve organizational processes, and work to improve quality, productivity, and efficiency.",
+    description: "Oversee daily business operations, improve organizational processes, and work to improve quality, productivity, and efficiency.",
     requirements: [
       "Bachelor's degree in Business Administration or related field",
       "5+ years of experience in operations management",
@@ -87,8 +134,7 @@ export const jobs: Job[] = [
     shift: "Night Shift (10PM - 6AM)",
     location: "Davao City",
     slots: 3,
-    description:
-      "Maintain, upgrade, and manage our software, hardware, and networks. Ensure that our technology infrastructure runs smoothly and efficiently.",
+    description: "Maintain, upgrade, and manage our software, hardware, and networks.",
     requirements: [
       "BS in Computer Science, Information Technology or related",
       "Experience with cloud services (AWS/Azure) and virtualization",
@@ -106,13 +152,11 @@ export const jobs: Job[] = [
     shift: "Day Shift (9AM - 6PM)",
     location: "Davao City",
     slots: 4,
-    description:
-      "Consolidate and analyze financial data, taking into account company’s goals and financial standing. Provide creative alternatives and advice to reduce costs.",
+    description: "Consolidate and analyze financial data, taking into account company’s goals and financial standing.",
     requirements: [
       "Degree in Finance, Accounting, or Economics",
       "Proven working experience as a Financial Analyst",
       "Proficient in spreadsheets, databases, and financial software",
-      "Strong presentation, reporting, and communication skills",
     ],
     badge: "New Role",
     badgeColor: "#10b981",
@@ -125,13 +169,11 @@ export const jobs: Job[] = [
     shift: "Shifting",
     location: "Davao City",
     slots: 5,
-    description:
-      "Supervise the IT service desk team, ensure high-quality technical support, and act as a point of escalation for complex technical issues.",
+    description: "Supervise the IT service desk team and ensure high-quality technical support.",
     requirements: [
       "College Graduate in an IT-related field",
       "At least 3 years of experience in technical support",
-      "Familiarity with ITIL foundations and best practices",
-      "Customer-service oriented with leadership potential",
+      "Familiarity with ITIL foundations",
     ],
     badge: "IT Service",
     badgeColor: "#f59e0b",
@@ -144,49 +186,31 @@ export const jobs: Job[] = [
     shift: "Day Shift (8AM - 5PM)",
     location: "Davao City",
     slots: 2,
-    description:
-      "Process and monitor payments and expenditures. Ensure that vendors and suppliers are paid within established time limits.",
+    description: "Process and monitor payments and expenditures.",
     requirements: [
       "BS degree in Accounting or Finance",
       "High degree of accuracy and attention to detail",
-      "Experience with ERP systems (SAP, Oracle, or NetSuite)",
-      "Understanding of basic bookkeeping and accounting payable principles",
+      "Experience with ERP systems (SAP or Oracle)",
     ],
     badge: "Finance",
     badgeColor: "#8b5cf6",
   },
 ];
 
-export const allDepartments: string[] = [
-  "All",
-  "Operations",
-  "IT Service",
-  "Finance",
-];
+export const allDepartments: string[] = ["All", "Operations", "IT Service", "Finance"];
 
 // ─── DEPT ICON HELPER ─────────────────────────────────────────────────────────
 
-export function DeptIcon({ 
-  dept, 
-  size = 18 
-}: { 
-  dept: string; 
-  size?: number 
-}) {
+export function DeptIcon({ dept, size = 18 }: { dept: string; size?: number }) {
   const props = { size, strokeWidth: 1.75 };
   
   switch (dept) {
-    case "Operations":
-      return <Settings {...props} />;
-    case "IT Service":
-      return <Monitor {...props} />;
-    case "Finance":
-      return <Wallet {...props} />;
-    case "HR / Admin":
-      return <ClipboardList {...props} />;
-    case "Quality Assurance":
-      return <ShieldCheck {...props} />;
-    default:
-      return <Briefcase {...props} />;
+    case "Operations": return <Settings {...props} />;
+    case "IT Service": return <Monitor {...props} />;
+    case "Finance": return <Wallet {...props} />;
+    case "HR / Admin": return <ClipboardList {...props} />;
+    case "Quality Assurance": return <ShieldCheck {...props} />;
+    case "Customer Support": return <Headset {...props} />;
+    default: return <Briefcase {...props} />;
   }
 }

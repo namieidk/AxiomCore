@@ -20,7 +20,6 @@ export const AdminSignupForm = () => {
     type: null, message: ''
   });
 
-  // Password Security Checks
   const checks = {
     length: formData.password.length >= 8,
     upper: /[A-Z]/.test(formData.password),
@@ -29,12 +28,10 @@ export const AdminSignupForm = () => {
   };
 
   const isPasswordValid = Object.values(checks).every(Boolean);
-
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (formData.employeeId.trim().length !== 6) {
       setStatus({ 
         type: 'error', 
@@ -77,21 +74,22 @@ export const AdminSignupForm = () => {
     }
   };
 
-  const inputStyle = "w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-mono text-xs placeholder:text-slate-700 uppercase italic font-black";
-  const labelStyle = "text-[9px] font-black uppercase tracking-[0.15em] text-slate-500 ml-1 mb-1.5 block";
-  const checkStyle = (met: boolean) => `text-[8px] font-bold uppercase tracking-tighter transition-colors ${met ? 'text-indigo-400' : 'text-slate-600'}`;
+  const inputStyle = "w-full px-4 py-3 bg-slate-950/50 border border-white/10 rounded-xl text-white outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-mono text-[11px] md:text-xs placeholder:text-slate-700 uppercase italic font-black";
+  const labelStyle = "text-[8px] md:text-[9px] font-black uppercase tracking-[0.15em] text-slate-500 ml-1 mb-1.5 block";
+  const checkStyle = (met: boolean) => `text-[7px] md:text-[8px] font-bold uppercase tracking-tighter transition-colors ${met ? 'text-indigo-400' : 'text-slate-600'}`;
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
       {status.type && (
-        <div className={`p-3 rounded-xl text-[10px] font-mono mb-4 border animate-pulse italic font-black ${
+        <div className={`p-3 rounded-xl text-[9px] md:text-[10px] font-mono mb-4 border animate-pulse italic font-black ${
           status.type === 'success' ? 'bg-indigo-500/10 border-indigo-500/50 text-indigo-400' : 'bg-red-500/10 border-red-500/50 text-red-400'
         }`}>
           [{status.type.toUpperCase()}]: {status.message}
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Grid stacks on mobile (1 column) and splits on medium screens (2 columns) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className={labelStyle}>Full Name</label>
           <input 
@@ -140,7 +138,8 @@ export const AdminSignupForm = () => {
           onChange={(e) => setFormData({...formData, password: e.target.value})} 
         />
         
-        <div className="flex gap-3 mt-2 px-1">
+        {/* Wrap flex on extra small screens if needed */}
+        <div className="flex flex-wrap gap-2 md:gap-3 mt-2 px-1">
           <span className={checkStyle(checks.length)}>● 8+ Chars</span>
           <span className={checkStyle(checks.upper)}>● Upper</span>
           <span className={checkStyle(checks.number)}>● Number</span>
@@ -151,7 +150,7 @@ export const AdminSignupForm = () => {
       <button
         type="submit"
         disabled={isLoading || status.type === 'success' || !isPasswordValid}
-        className={`w-full py-4 mt-2 font-black rounded-xl transition-all active:scale-[0.98] text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-xl italic ${
+        className={`w-full py-4 mt-2 font-black rounded-xl transition-all active:scale-[0.98] text-[9px] md:text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-xl italic ${
           isLoading || status.type === 'success' || !isPasswordValid 
             ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
             : 'bg-white text-slate-950 hover:bg-indigo-500 hover:text-white shadow-white/5'

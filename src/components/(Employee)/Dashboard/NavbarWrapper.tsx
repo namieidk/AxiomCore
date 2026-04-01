@@ -1,4 +1,3 @@
-// NavbarWrapper.tsx
 'use client';
 
 import dynamic from 'next/dynamic';

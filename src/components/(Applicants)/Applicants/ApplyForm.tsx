@@ -4,8 +4,6 @@ import {
   User, Mail, Phone, FileText, ChevronLeft, 
   CheckCircle2, X, Loader2, AlertCircle, Upload
 } from "lucide-react";
-import { themes } from "../Welcome/Themes";
-import { globalStyles } from "../Welcome/Style";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,30 +44,45 @@ interface ApplyFormUIProps {
 }
 
 const applyStyles = `
-  .ap-page { min-height: 100vh; font-family: 'Outfit', sans-serif; padding: 0 0 6rem; transition: background .3s; }
-  .ap-header { position: sticky; top: 0; z-index: 100; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .ap-back-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem 1rem; border-radius: 9px; font-size: .82rem; cursor: pointer; transition: 0.2s; background: transparent; }
-  .ap-header-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.1rem; }
-  .ap-job-pill { display: inline-flex; align-items: center; padding: .35rem 1rem; border-radius: 999px; font-size: .75rem; font-weight: 600; }
-  .ap-progress-wrap { max-width: 780px; margin: 0 auto; padding: 2rem 2rem 0; }
+  .ap-page { min-height: 100vh; font-family: 'Outfit', sans-serif; padding: 0 0 4rem; transition: background .3s; }
+  .ap-header { position: sticky; top: 0; z-index: 100; padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .ap-back-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .75rem; border-radius: 9px; font-size: .75rem; cursor: pointer; transition: 0.2s; background: transparent; }
+  .ap-header-title { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 0.9rem; display: none; }
+  .ap-job-pill { display: inline-flex; align-items: center; padding: .35rem .75rem; border-radius: 999px; font-size: .65rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+  
+  .ap-progress-wrap { max-width: 780px; margin: 0 auto; padding: 1.5rem 1.25rem 0; }
   .ap-progress-bar { height: 6px; border-radius: 999px; overflow: hidden; margin-bottom: .5rem; }
   .ap-progress-fill { height: 100%; transition: width .4s ease; }
-  .ap-card { max-width: 780px; margin: 1.5rem auto 0; border-radius: 24px; padding: 2.5rem; transition: 0.3s; }
-  .ap-section-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: .75rem; }
-  .ap-section-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-  .ap-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
-  .ap-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
-  .ap-field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.2rem; }
-  .ap-label { font-size: .8rem; font-weight: 600; }
-  .ap-input, .ap-select, .ap-textarea { padding: .8rem 1rem; border-radius: 12px; font-size: .9rem; outline: none; width: 100%; transition: 0.2s; }
-  .ap-textarea { min-height: 120px; resize: vertical; }
-  .ap-upload-zone { border-radius: 16px; padding: 3rem 2rem; text-align: center; cursor: pointer; border: 2px dashed; transition: 0.2s; }
-  .ap-upload-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
-  .ap-file-chosen { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 12px; margin-top: 1rem; border: 1px solid; }
-  .ap-btn-submit { flex: 1; border: none; padding: 1rem; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: 0.2s; }
-  .ap-error-msg { font-size: .75rem; color: #ef4444; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.25rem; }
   
-  @media (max-width: 640px) { .ap-grid-2, .ap-grid-3 { grid-template-columns: 1fr; } }
+  .ap-card { max-width: 780px; margin: 1rem 1.25rem; border-radius: 20px; padding: 1.5rem; transition: 0.3s; }
+  .ap-section-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: .75rem; }
+  .ap-section-icon { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  
+  .ap-grid-2 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  .ap-grid-3 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+  
+  .ap-field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+  .ap-label { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  .ap-input, .ap-select, .ap-textarea { padding: .75rem 1rem; border-radius: 12px; font-size: .9rem; outline: none; width: 100%; transition: 0.2s; }
+  .ap-textarea { min-height: 100px; resize: vertical; }
+  
+  .ap-upload-zone { border-radius: 16px; padding: 2rem 1rem; text-align: center; cursor: pointer; border: 2px dashed; transition: 0.2s; }
+  .ap-upload-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+  .ap-file-chosen { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 12px; margin-top: 1rem; border: 1px solid; }
+  
+  .ap-btn-submit { width: 100%; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; font-size: 0.85rem; letter-spacing: 1px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: 0.2s; }
+  .ap-error-msg { font-size: .7rem; color: #ef4444; margin-top: 0.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem; }
+
+  @media (min-width: 640px) {
+    .ap-header { padding: 1rem 2rem; }
+    .ap-header-title { display: block; font-size: 1.1rem; }
+    .ap-job-pill { font-size: .75rem; max-width: none; }
+    .ap-card { margin: 1.5rem auto 0; padding: 2.5rem; border-radius: 24px; }
+    .ap-grid-2 { grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .ap-grid-3 { grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+    .ap-page { padding: 0 0 6rem; }
+    .ap-btn-submit { font-size: 0.9rem; }
+  }
 `;
 
 export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
@@ -78,14 +91,14 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
   if (submitted) {
     return (
       <div className="ap-page" style={{ background: t.bg, color: t.text }}>
-        <style dangerouslySetInnerHTML={{ __html: globalStyles + applyStyles }} />
-        <div className="ap-success" style={{ textAlign: 'center', padding: '100px 20px' }}>
-          <div className="ap-success-icon" style={{ background: t.accentSoft, width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
-            <CheckCircle2 size={40} style={{ color: t.accent }} />
+        <style dangerouslySetInnerHTML={{ __html: applyStyles }} />
+        <div className="ap-success" style={{ textAlign: 'center', padding: '80px 24px' }}>
+          <div className="ap-success-icon" style={{ background: t.accentSoft, width: '70px', height: '70px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
+            <CheckCircle2 size={32} style={{ color: t.accent }} />
           </div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '1rem' }}>Success!</h1>
-          <p style={{ color: t.muted, maxWidth: '500px', margin: '0 auto 2rem' }}>Application for <b>{jobTitle}</b> received.</p>
-          <div style={{ background: t.surface, padding: '1rem 2rem', borderRadius: '99px', display: 'inline-block', border: `1px solid ${t.accentBorder}`, color: t.accent, fontWeight: 700, letterSpacing: '2px', marginBottom: '3rem' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '1rem' }}>Success!</h1>
+          <p style={{ color: t.muted, maxWidth: '400px', margin: '0 auto 2rem', fontSize: '0.9rem' }}>Application for <b>{jobTitle}</b> received.</p>
+          <div style={{ background: t.surface, padding: '0.75rem 1.5rem', borderRadius: '99px', display: 'inline-block', border: `1px solid ${t.accentBorder}`, color: t.accent, fontWeight: 700, letterSpacing: '1px', fontSize: '0.8rem', marginBottom: '2rem' }}>
             REF: {refCode}
           </div>
           <br />
@@ -99,15 +112,13 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
 
   return (
     <div className="ap-page" style={{ background: t.bg, color: t.text }}>
-      <style dangerouslySetInnerHTML={{ __html: globalStyles + applyStyles }} />
+      <style dangerouslySetInnerHTML={{ __html: applyStyles }} />
 
       <div className="ap-header" style={{ background: t.navBg }}>
         <button type="button" className="ap-back-btn" style={{ border: `1px solid ${t.border}`, color: t.muted }} onClick={handlers.onBack}>
-          <ChevronLeft size={16} /> Back
+          <ChevronLeft size={16} /> <span className="hidden sm:inline">Back</span>
         </button>
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <div className="ap-header-title" style={{ color: t.text }}>Axiom Recruitment</div>
-        </div>
+        <div className="ap-header-title" style={{ color: t.text }}>Axiom Recruitment</div>
         <div className="ap-job-pill" style={{ background: t.accentSoft, color: t.accent, border: `1px solid ${t.accentBorder}` }}>
           {jobTitle}
         </div>
@@ -117,7 +128,7 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
         <div className="ap-progress-bar" style={{ background: t.surface2 }}>
           <div className="ap-progress-fill" style={{ width: `${progress}%`, background: t.accent }} />
         </div>
-        <div style={{ textAlign: 'right', fontSize: '0.7rem', color: t.muted, fontWeight: 700 }}>{progress}% COMPLETE</div>
+        <div style={{ textAlign: 'right', fontSize: '0.65rem', color: t.muted, fontWeight: 800 }}>{progress}% COMPLETE</div>
       </div>
 
       <div className="ap-card" style={{ background: t.surface, border: `1px solid ${t.border}` }}>
@@ -129,12 +140,12 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
         <div className="ap-grid-2">
           <div className="ap-field">
             <label className="ap-label">First Name</label>
-            <input className="ap-input" placeholder="First Name" style={{ background: t.surface2, border: `1px solid ${errors.firstName ? '#ef4444' : t.border}`, color: t.text }} value={form.firstName} onChange={(e) => handlers.handleChange("firstName", e.target.value)} />
+            <input className="ap-input" placeholder="e.g. John" style={{ background: t.surface2, border: `1px solid ${errors.firstName ? '#ef4444' : t.border}`, color: t.text }} value={form.firstName} onChange={(e) => handlers.handleChange("firstName", e.target.value)} />
             {errors.firstName && <span className="ap-error-msg">{errors.firstName}</span>}
           </div>
           <div className="ap-field">
             <label className="ap-label">Last Name</label>
-            <input className="ap-input" placeholder="Last Name" style={{ background: t.surface2, border: `1px solid ${errors.lastName ? '#ef4444' : t.border}`, color: t.text }} value={form.lastName} onChange={(e) => handlers.handleChange("lastName", e.target.value)} />
+            <input className="ap-input" placeholder="e.g. Doe" style={{ background: t.surface2, border: `1px solid ${errors.lastName ? '#ef4444' : t.border}`, color: t.text }} value={form.lastName} onChange={(e) => handlers.handleChange("lastName", e.target.value)} />
             {errors.lastName && <span className="ap-error-msg">{errors.lastName}</span>}
           </div>
         </div>
@@ -156,7 +167,7 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
         </div>
       </div>
 
-      <div className="ap-card" style={{ background: t.surface, border: `1px solid ${t.border}`, marginTop: '1.5rem' }}>
+      <div className="ap-card" style={{ background: t.surface, border: `1px solid ${t.border}` }}>
         <h3 className="ap-section-title" style={{ color: t.text }}>
            <div className="ap-section-icon" style={{ background: t.accentSoft, color: t.accent }}><Mail size={16}/></div>
            Contact & Address
@@ -164,12 +175,12 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
         <div className="ap-grid-2">
           <div className="ap-field">
             <label className="ap-label">Email Address</label>
-            <input type="email" className="ap-input" style={{ background: t.surface2, border: `1px solid ${errors.email ? '#ef4444' : t.border}`, color: t.text }} value={form.email} onChange={(e) => handlers.handleChange("email", e.target.value)} />
+            <input type="email" className="ap-input" placeholder="name@email.com" style={{ background: t.surface2, border: `1px solid ${errors.email ? '#ef4444' : t.border}`, color: t.text }} value={form.email} onChange={(e) => handlers.handleChange("email", e.target.value)} />
             {errors.email && <span className="ap-error-msg">{errors.email}</span>}
           </div>
           <div className="ap-field">
             <label className="ap-label">Phone Number</label>
-            <input className="ap-input" style={{ background: t.surface2, border: `1px solid ${t.border}`, color: t.text }} value={form.phone} onChange={(e) => handlers.handleChange("phone", e.target.value)} />
+            <input className="ap-input" placeholder="0912 345 6789" style={{ background: t.surface2, border: `1px solid ${t.border}`, color: t.text }} value={form.phone} onChange={(e) => handlers.handleChange("phone", e.target.value)} />
           </div>
         </div>
         <div className="ap-field">
@@ -183,7 +194,7 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
         </div>
       </div>
 
-      <div className="ap-card" style={{ background: t.surface, border: `1px solid ${t.border}`, marginTop: '1.5rem' }}>
+      <div className="ap-card" style={{ background: t.surface, border: `1px solid ${t.border}` }}>
         <h3 className="ap-section-title" style={{ color: t.text }}>
            <div className="ap-section-icon" style={{ background: t.accentSoft, color: t.accent }}><FileText size={16}/></div>
            Documents
@@ -205,29 +216,29 @@ export const ApplyFormUI: React.FC<ApplyFormUIProps> = (props) => {
             if (e.dataTransfer.files?.[0]) handlers.handleFile(e.dataTransfer.files[0]);
           }}
         >
-          <div className="ap-upload-icon" style={{ background: t.accentSoft, color: t.accent }}><Upload size={24}/></div>
-          <div style={{ color: t.text, fontWeight: 700 }}>Upload Resume</div>
-          <div style={{ fontSize: '0.8rem' }}>PDF or Word (Max 5MB)</div>
+          <div className="ap-upload-icon" style={{ background: t.accentSoft, color: t.accent }}><Upload size={20}/></div>
+          <div style={{ color: t.text, fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase' }}>Upload Resume</div>
+          <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>PDF or Word (Max 5MB)</div>
           <input ref={fileRef} type="file" hidden accept=".pdf,.doc,.docx" onChange={(e) => handlers.handleFile(e.target.files?.[0] || null)} />
         </div>
 
         {form.resume && (
           <div className="ap-file-chosen" style={{ background: t.accentSoft, borderColor: t.accentBorder }}>
-            <FileText size={20} style={{ color: t.accent }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: t.text }}>{form.resume.name}</div>
+            <FileText size={18} style={{ color: t.accent }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: t.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{form.resume.name}</div>
             </div>
-            <X size={18} style={{ cursor: 'pointer', color: t.muted }} onClick={(e) => { e.stopPropagation(); handlers.handleChange("resume", null); }} />
+            <X size={16} style={{ cursor: 'pointer', color: t.muted }} onClick={(e) => { e.stopPropagation(); handlers.handleChange("resume", null); }} />
           </div>
         )}
         {errors.resume && <div className="ap-error-msg"><AlertCircle size={12}/> {errors.resume}</div>}
 
-        <div className="ap-field" style={{ marginTop: '2rem' }}>
+        <div className="ap-field" style={{ marginTop: '1.5rem' }}>
           <label className="ap-label">Cover Letter (Optional)</label>
-          <textarea className="ap-textarea" style={{ background: t.surface2, border: `1px solid ${t.border}`, color: t.text }} value={form.coverLetter} onChange={(e) => handlers.handleChange("coverLetter", e.target.value)} />
+          <textarea className="ap-textarea" placeholder="Tell us why you are a great fit..." style={{ background: t.surface2, border: `1px solid ${t.border}`, color: t.text }} value={form.coverLetter} onChange={(e) => handlers.handleChange("coverLetter", e.target.value)} />
         </div>
 
-        {errors.submit && <div className="ap-error-msg" style={{ justifyContent: 'center', marginBottom: '1rem' }}>{errors.submit}</div>}
+        {errors.submit && <div className="ap-error-msg" style={{ justifyContent: 'center', marginBottom: '1rem', textAlign: 'center' }}>{errors.submit}</div>}
 
         <button 
           type="button" 

@@ -45,14 +45,24 @@ export const StatCards = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    /* RESPONSIVE GRID: 
+       - 1 column on mobile 
+       - 2 columns on small tablets (sm)
+       - 4 columns on large screens (lg)
+    */
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
       {statsConfig.map((stat) => (
-        <div key={stat.label} className="relative overflow-hidden bg-slate-900/30 border border-white/5 p-7 rounded-[2.5rem] backdrop-blur-3xl hover:border-indigo-500/20 transition-all group uppercase italic font-black">
+        <div 
+          key={stat.label} 
+          className="relative overflow-hidden bg-slate-900/30 border border-white/5 p-5 md:p-7 rounded-[2rem] md:rounded-[2.5rem] backdrop-blur-3xl hover:border-indigo-500/20 transition-all group uppercase italic font-black"
+        >
           <div className="flex justify-between items-start mb-4">
-            <div className={`p-3 rounded-2xl ${stat.bg} border border-white/5`}>
-              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            <div className={`p-2.5 md:p-3 rounded-2xl ${stat.bg} border border-white/5`}>
+              <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
             </div>
-            <span className="text-[10px] text-slate-600 tracking-widest">Live Metric</span>
+            <span className="text-[9px] md:text-[10px] text-slate-600 tracking-widest whitespace-nowrap">
+              Live Metric
+            </span>
           </div>
 
           {loading ? (
@@ -61,11 +71,20 @@ export const StatCards = () => {
               <span className="text-[10px] text-slate-700 tracking-tighter">Syncing...</span>
             </div>
           ) : (
-            <p className="text-3xl text-white tracking-tighter group-hover:text-indigo-400 transition-colors">
-              {stat.value}
+            /* Using truncate to prevent long values from breaking the layout on small screens */
+            <p className="text-2xl md:text-3xl text-white tracking-tighter group-hover:text-indigo-400 transition-colors truncate">
+              {stat.value || '0.0%'}
             </p>
           )}
-          <p className="text-[10px] tracking-[0.2em] text-slate-500 mt-1 font-bold">{stat.label}</p>
+          
+          <p className="text-[9px] md:text-[10px] tracking-[0.2em] text-slate-500 mt-1 font-bold">
+            {stat.label}
+          </p>
+
+          {/* Subtle background decoration that appears on hover for that high-tech feel */}
+          <div className="absolute -right-2 -bottom-2 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none">
+            <stat.icon size={80} />
+          </div>
         </div>
       ))}
     </div>

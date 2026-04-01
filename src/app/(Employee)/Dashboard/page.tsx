@@ -12,26 +12,39 @@ export default function EmployeeDashboard() {
   return (
     <SessionGuard allowedRoles={['EMPLOYEE']}>
       <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase italic font-black">
+        {/* Sidebar handles its own responsive toggle logic */}
         <Sidebar />
 
         <section className="flex-1 flex flex-col overflow-y-auto bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617] scrollbar-hide">
           
           <NavbarWrapper />
 
-          <div className="p-10 max-w-[1600px] w-full mx-auto space-y-10">
-            {/* Real-time Metrics */}
+          {/* Responsive Padding: 
+              - px-6 on mobile, px-10 on desktop
+              - py-24 on mobile (to clear the absolute mobile trigger button), py-10 on desktop
+          */}
+          <div className="px-6 py-24 lg:p-10 max-w-[1600px] w-full mx-auto space-y-8 lg:space-y-10">
+            
+            {/* Real-time Metrics - Already grid-responsive internally */}
             <StatCards />
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-              {/* Performance & Updates */}
-              <div className="xl:col-span-2 space-y-10">
+            {/* Main Content Grid:
+                - 1 column on mobile/tablet
+                - 3 columns on extra-large screens (xl)
+            */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 lg:gap-10">
+              
+              {/* Performance & Updates Section */}
+              <div className="xl:col-span-2 space-y-8 lg:space-y-10 order-2 xl:order-1">
                 <PerformanceFeed />
               </div>
 
-              {/* Attendance & Compliance */}
-              <div className="flex flex-col gap-8">
+              {/* Attendance & Compliance Section */}
+              <div className="flex flex-col gap-8 order-1 xl:order-2">
+                {/* ShiftStatus usually needs to be top-of-mind on mobile, so we use order-1 */}
                 <ShiftStatus />
                 
+                {/* Security Protocol Card - Hidden on smaller screens to reduce clutter, visible on XL */}
                 <div className="relative group bg-indigo-500/5 border border-indigo-500/10 p-8 rounded-[2.5rem] hidden xl:block overflow-hidden">
                   <div className="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 blur-[50px] rounded-full group-hover:bg-indigo-500/20 transition-all" />
                   
@@ -45,6 +58,7 @@ export default function EmployeeDashboard() {
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </section>

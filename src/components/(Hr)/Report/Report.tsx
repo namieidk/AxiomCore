@@ -45,7 +45,6 @@ const downloadReportPDF = (report: Report) => {
     window.open(report.downloadUrl, '_blank');
     return;
   }
-  // ... (Keep your PDF logic here as it's UI/Formatting related)
   const html = `
     <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
     <title>${report.reportNumber}</title>
@@ -117,61 +116,61 @@ export const HRReportsUI = ({
   ];
 
   return (
-    <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase">
+    <main className="h-screen w-full flex flex-col md:flex-row bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase">
       <HRSidebar />
       <section className="flex-1 flex flex-col overflow-y-auto bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617]">
         
-        <header className="px-12 py-10 border-b border-white/5 flex justify-between items-end backdrop-blur-md sticky top-0 z-20 bg-[#020617]/80">
+        <header className="px-6 md:px-12 py-8 md:py-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 backdrop-blur-md sticky top-0 z-20 bg-[#020617]/80">
           <div>
             <div className="flex items-center gap-2 text-indigo-500 mb-2">
               <BarChart3 className="w-4 h-4" strokeWidth={3} />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">Analytics & Intelligence</span>
+              <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em]">Analytics & Intelligence</span>
             </div>
-            <h1 className="text-4xl font-black text-white tracking-tighter uppercase">
+            <h1 className="text-2xl md:text-4xl font-black text-white tracking-tighter uppercase italic">
               Operational <span className="text-indigo-600">Reports</span>
             </h1>
           </div>
-          <div className="flex items-center gap-4">
-            <button onClick={onExportCSV} className="flex items-center gap-3 px-8 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
+            <button onClick={onExportCSV} className="flex items-center justify-center gap-3 px-6 md:px-8 py-3 md:py-4 bg-indigo-600 text-white rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 whitespace-nowrap">
               <Download className="w-4 h-4" /> Export Full Audit
             </button>
-            <div className="text-right hidden md:block">
-              <p className="text-[10px] text-indigo-400 tracking-widest uppercase font-black">{hrName}</p>
+            <div className="text-left md:text-right">
+              <p className="text-[9px] md:text-[10px] text-indigo-400 tracking-widest uppercase font-black truncate">{hrName}</p>
             </div>
           </div>
         </header>
 
-        <div className="p-12 max-w-[1600px] w-full mx-auto space-y-10">
+        <div className="p-6 md:p-12 max-w-[1600px] w-full mx-auto space-y-8 md:space-y-12">
           {/* Stat Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {statCards.map((stat, i) => (
-              <div key={i} className="bg-slate-900/40 border border-white/5 p-8 rounded-[2.5rem] backdrop-blur-3xl group hover:border-indigo-500/30 transition-all relative overflow-hidden">
-                <div className="flex justify-between items-start mb-6">
+              <div key={i} className="bg-slate-900/40 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] backdrop-blur-3xl group hover:border-indigo-500/30 transition-all relative overflow-hidden">
+                <div className="flex justify-between items-start mb-4 md:mb-6">
                   <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
-                <p className="text-[9px] font-black text-slate-500 tracking-widest mb-1">{stat.label}</p>
-                <p className="text-3xl font-black tracking-tighter text-white">{stat.val}</p>
+                <p className="text-[8px] md:text-[9px] font-black text-slate-500 tracking-widest mb-1">{stat.label}</p>
+                <p className="text-2xl md:text-3xl font-black tracking-tighter text-white">{stat.val}</p>
               </div>
             ))}
           </div>
 
           {/* Grid Layout for Archive and Activity */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-10">
             <div className="lg:col-span-2 space-y-6">
-              <h3 className="text-xs font-black text-indigo-500 tracking-[0.4em]">Document Archive</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h3 className="text-[10px] font-black text-indigo-500 tracking-[0.4em] uppercase">Document Archive</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {reports.slice(0, 6).map((report) => {
                   const Icon = typeIcon(report.type);
                   return (
-                    <div key={report.id} onClick={() => downloadReportPDF(report)} className="bg-slate-900/20 border border-white/5 p-6 rounded-[2.5rem] flex items-center justify-between hover:bg-white/5 transition-all group cursor-pointer">
-                      <div className="flex items-center gap-5">
-                        <Icon className="w-6 h-6 text-indigo-500" />
-                        <div>
-                          <h4 className="text-xs font-black text-white truncate max-w-[140px]">{report.name}</h4>
-                          <p className="text-[7px] text-slate-500 uppercase">{timeAgo(report.createdAt)}</p>
+                    <div key={report.id} onClick={() => downloadReportPDF(report)} className="bg-slate-900/20 border border-white/5 p-5 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] flex items-center justify-between hover:bg-white/5 transition-all group cursor-pointer">
+                      <div className="flex items-center gap-4 md:gap-5 min-w-0">
+                        <Icon className="w-5 h-5 md:w-6 md:h-6 text-indigo-500 shrink-0" />
+                        <div className="min-w-0">
+                          <h4 className="text-[10px] md:text-xs font-black text-white truncate pr-2 uppercase italic">{report.name}</h4>
+                          <p className="text-[7px] text-slate-500 uppercase tracking-tighter">{timeAgo(report.createdAt)}</p>
                         </div>
                       </div>
-                      <Download className="w-4 h-4 text-slate-500 group-hover:text-indigo-400" />
+                      <Download className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 shrink-0" />
                     </div>
                   );
                 })}
@@ -179,15 +178,15 @@ export const HRReportsUI = ({
             </div>
 
             <div className="space-y-6">
-               <h3 className="text-xs font-black text-indigo-500 tracking-[0.4em]">Recent System Activity</h3>
-               <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] p-8 space-y-4">
+               <h3 className="text-[10px] font-black text-indigo-500 tracking-[0.4em] uppercase">System Activity</h3>
+               <div className="bg-slate-900/40 border border-white/5 rounded-[1.5rem] md:rounded-[3rem] p-6 md:p-8 space-y-4">
                  {reports.slice(0, 5).map(r => (
-                   <div key={r.id} className="flex justify-between border-b border-white/5 pb-4">
-                     <div>
-                       <p className="text-[10px] text-white font-black">{r.name}</p>
+                   <div key={r.id} className="flex justify-between items-center border-b border-white/5 pb-4 last:border-0 last:pb-0">
+                     <div className="min-w-0 pr-2">
+                       <p className="text-[9px] md:text-[10px] text-white font-black truncate uppercase italic">{r.name}</p>
                        <p className="text-[7px] text-slate-500">EMP {r.employeeId}</p>
                      </div>
-                     <span className="text-[8px] text-indigo-400">{timeAgo(r.createdAt)}</span>
+                     <span className="text-[7px] md:text-[8px] text-indigo-400 shrink-0 uppercase italic">{timeAgo(r.createdAt)}</span>
                    </div>
                  ))}
                </div>
@@ -195,32 +194,34 @@ export const HRReportsUI = ({
           </div>
 
           {/* HR Leave Queue */}
-          <div className="bg-slate-900/20 border border-white/5 rounded-[3.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
-            <div className="px-10 py-7 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-              <h3 className="text-xs font-black text-white tracking-[0.3em]">HR LEAVE FINAL APPROVAL</h3>
+          <div className="bg-slate-900/20 border border-white/5 rounded-[1.5rem] md:rounded-[3.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
+            <div className="px-6 md:px-10 py-5 md:py-7 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+              <h3 className="text-[9px] md:text-xs font-black text-white tracking-[0.3em] uppercase italic">HR LEAVE FINAL APPROVAL</h3>
             </div>
             {leaveLoading ? (
-              <div className="p-10"><Loader2 className="animate-spin w-6 h-6 text-indigo-500 mx-auto" /></div>
+              <div className="p-10 text-center"><Loader2 className="animate-spin w-6 h-6 text-indigo-500 mx-auto" /></div>
             ) : (
               <div className="divide-y divide-white/5">
-                {leaveRequests.map((req) => (
-                  <div key={req.id} className="px-10 py-6 flex items-center justify-between hover:bg-white/[0.02] transition-all">
-                    <div className="flex items-center gap-5">
+                {leaveRequests.length > 0 ? leaveRequests.map((req) => (
+                  <div key={req.id} className="px-6 md:px-10 py-5 md:py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:bg-white/[0.02] transition-all gap-4 sm:gap-0">
+                    <div className="flex items-center gap-4 md:gap-5 min-w-0">
                       <div>
-                        <p className="text-[11px] font-black text-white uppercase">{req.name}</p>
-                        <p className="text-[8px] text-indigo-400 tracking-widest">{req.type} • {req.date}</p>
+                        <p className="text-[10px] md:text-[11px] font-black text-white uppercase italic">{req.name}</p>
+                        <p className="text-[7px] md:text-[8px] text-indigo-400 tracking-widest uppercase">{req.type} • {req.date}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {actionId === req.id ? <Loader2 className="animate-spin w-4 h-4" /> : (
+                    <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
+                      {actionId === req.id ? <Loader2 className="animate-spin w-4 h-4 text-indigo-500" /> : (
                         <>
-                          <button onClick={() => onLeaveAction(req.id, 'APPROVED')} className="px-5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[8px] font-black">APPROVE & DEDUCT</button>
-                          <button onClick={() => onLeaveAction(req.id, 'REJECTED')} className="px-5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[8px] font-black">REJECT</button>
+                          <button onClick={() => onLeaveAction(req.id, 'APPROVED')} className="flex-1 sm:flex-none px-4 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[7px] md:text-[8px] font-black uppercase transition-all hover:bg-emerald-500/20">APPROVE</button>
+                          <button onClick={() => onLeaveAction(req.id, 'REJECTED')} className="flex-1 sm:flex-none px-4 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-[7px] md:text-[8px] font-black uppercase transition-all hover:bg-red-500/20">REJECT</button>
                         </>
                       )}
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="p-10 text-center text-[10px] font-black text-slate-500 uppercase italic tracking-widest">No pending queue items</div>
+                )}
               </div>
             )}
           </div>

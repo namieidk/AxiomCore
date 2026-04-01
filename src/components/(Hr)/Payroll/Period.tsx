@@ -24,12 +24,12 @@ const FORM_FIELDS: { key: keyof PpForm; label: string; type: string; placeholder
 
 function PeriodForm({ form, onChange, onSave }: PeriodFormProps) {
   return (
-    <div className="bg-slate-900/40 border border-indigo-500/10 rounded-[3rem] p-10 space-y-8">
+    <div className="bg-slate-900/40 border border-indigo-500/10 rounded-[1.5rem] md:rounded-[3rem] p-6 md:p-10 space-y-8">
       <h3 className="text-[10px] font-black text-indigo-500 tracking-[0.4em] flex items-center gap-2 uppercase">
-        <CalendarDays className="w-4 h-4" /> Schedule New Pay Period
+        <CalendarDays className="w-4 h-4 shrink-0" /> Schedule New Pay Period
       </h3>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         {FORM_FIELDS.map(f => (
           <div key={f.key} className="space-y-2">
             <label className="text-[8px] font-black text-slate-500 tracking-widest ml-2 uppercase">
@@ -40,15 +40,15 @@ function PeriodForm({ form, onChange, onSave }: PeriodFormProps) {
               placeholder={f.placeholder}
               value={form[f.key]}
               onChange={e => onChange(f.key, e.target.value)}
-              className="w-full bg-[#020617] border border-white/10 rounded-2xl p-4 text-[10px] font-black text-white outline-none focus:border-indigo-500 transition-all uppercase"
+              className="w-full bg-[#020617] border border-white/10 rounded-xl md:rounded-2xl p-4 text-[10px] font-black text-white outline-none focus:border-indigo-500 transition-all uppercase"
             />
           </div>
         ))}
 
-        <div className="flex items-end lg:col-span-1">
+        <div className="flex items-end sm:col-span-2 lg:col-span-1">
           <button
             onClick={onSave}
-            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-[9px] font-black tracking-widest uppercase transition-all shadow-lg shadow-indigo-600/20 text-white"
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl md:rounded-2xl text-[9px] font-black tracking-widest uppercase transition-all shadow-lg shadow-indigo-600/20 text-white"
           >
             <Save className="w-3 h-3" /> Save
           </button>
@@ -66,9 +66,8 @@ interface PeriodsTableProps {
 
 function PeriodsTable({ payPeriods }: PeriodsTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Lower count because the form above is large
+  const itemsPerPage = 5;
 
-  // Pagination Calculations
   const totalPages = Math.ceil(payPeriods.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const visiblePeriods = useMemo(() => 
@@ -78,60 +77,67 @@ function PeriodsTable({ payPeriods }: PeriodsTableProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-slate-900/40 border border-white/5 rounded-[3rem] overflow-hidden shadow-2xl">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-white/5 border-b border-white/5 text-[10px] font-black text-slate-500 tracking-[0.3em]">
-              <th className="px-10 py-6">LABEL</th>
-              <th className="px-6 py-6">PERIOD RANGE</th>
-              <th className="px-6 py-6">CUTOFF</th>
-              <th className="px-6 py-6 text-emerald-500">EST. PAY DATE</th>
-              <th className="px-6 py-6 text-right">STATUS</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {payPeriods.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-16 text-center text-[10px] font-black text-slate-700 tracking-widest uppercase italic">
-                  No Pay Periods Scheduled
-                </td>
+      <div className="bg-slate-900/40 border border-white/5 rounded-[1.5rem] md:rounded-[3rem] overflow-hidden shadow-2xl">
+        {/* Mobile Swipe Hint */}
+        <div className="lg:hidden px-6 py-3 bg-indigo-500/5 text-[8px] font-black text-indigo-400 uppercase tracking-widest border-b border-white/5 italic">
+          Swipe horizontally to view full schedule →
+        </div>
+
+        <div className="overflow-x-auto scrollbar-hide">
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead>
+              <tr className="bg-white/5 border-b border-white/5 text-[10px] font-black text-slate-500 tracking-[0.3em]">
+                <th className="px-6 md:px-10 py-6">LABEL</th>
+                <th className="px-6 py-6">PERIOD RANGE</th>
+                <th className="px-6 py-6">CUTOFF</th>
+                <th className="px-6 py-6 text-emerald-500">EST. PAY DATE</th>
+                <th className="px-6 py-6 text-right">STATUS</th>
               </tr>
-            ) : (
-              visiblePeriods.map(p => (
-                <tr key={p.id} className="hover:bg-indigo-600/5 transition-colors group">
-                  <td className="px-10 py-6">
-                    <p className="text-xs font-black text-white italic uppercase tracking-tighter">{p.label}</p>
-                    <p className="text-[7px] text-slate-600 font-bold tracking-widest mt-0.5 uppercase">System ID: {p.id}</p>
-                  </td>
-                  <td className="px-6 py-6 text-[10px] font-black text-slate-400">
-                    {fmtD(p.periodStart)} – {fmtD(p.periodEnd)}
-                  </td>
-                  <td className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">{fmtD(p.cutoffDate)}</td>
-                  <td className="px-6 py-6 text-[10px] font-black text-emerald-400 uppercase tracking-widest">{fmtD(p.payDate)}</td>
-                  <td className="px-6 py-6 text-right">
-                    <span className={`px-4 py-1.5 rounded-lg text-[8px] font-black tracking-widest border transition-all ${
-                      p.status === 'PROCESSED'
-                        ? 'border-emerald-500/20 text-emerald-500 bg-emerald-500/5'
-                        : 'border-indigo-500/20 text-indigo-400 bg-indigo-500/5'
-                    }`}>
-                      {p.status}
-                    </span>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {payPeriods.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-16 text-center text-[10px] font-black text-slate-700 tracking-widest uppercase italic">
+                    No Pay Periods Scheduled
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                visiblePeriods.map(p => (
+                  <tr key={p.id} className="hover:bg-indigo-600/5 transition-colors group">
+                    <td className="px-6 md:px-10 py-6">
+                      <p className="text-xs font-black text-white italic uppercase tracking-tighter">{p.label}</p>
+                      <p className="text-[7px] text-slate-600 font-bold tracking-widest mt-0.5 uppercase">System ID: {p.id}</p>
+                    </td>
+                    <td className="px-6 py-6 text-[10px] font-black text-slate-400">
+                      {fmtD(p.periodStart)} – {fmtD(p.periodEnd)}
+                    </td>
+                    <td className="px-6 py-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">{fmtD(p.cutoffDate)}</td>
+                    <td className="px-6 py-6 text-[10px] font-black text-emerald-400 uppercase tracking-widest">{fmtD(p.payDate)}</td>
+                    <td className="px-6 py-6 text-right">
+                      <span className={`px-4 py-1.5 rounded-lg text-[8px] font-black tracking-widest border transition-all inline-block ${
+                        p.status === 'PROCESSED'
+                          ? 'border-emerald-500/20 text-emerald-500 bg-emerald-500/5'
+                          : 'border-indigo-500/20 text-indigo-400 bg-indigo-500/5'
+                      }`}>
+                        {p.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* PAGINATION CONTROLS */}
       {payPeriods.length > itemsPerPage && (
-        <div className="flex items-center justify-between px-10">
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 md:px-10">
+          <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] text-center">
             Schedule Page <span className="text-white">{currentPage}</span> of {totalPages}
           </p>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-2 md:pb-0 scrollbar-hide">
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
@@ -145,7 +151,7 @@ function PeriodsTable({ payPeriods }: PeriodsTableProps) {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all border ${
+                  className={`w-10 h-10 shrink-0 rounded-xl text-[10px] font-black transition-all border ${
                     currentPage === i + 1 
                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/20' 
                     : 'bg-white/5 border-white/10 text-slate-500 hover:border-white/20'
@@ -190,19 +196,19 @@ export function PeriodsView({
   onSave,
 }: PeriodsViewProps) {
   return (
-    <div className="min-h-screen bg-[#020617]">
-      <header className="px-12 py-10 border-b border-white/5 backdrop-blur-md sticky top-0 z-20 bg-[#020617]/80">
-        <div className="flex items-center gap-2 text-indigo-500 mb-2 font-black uppercase tracking-[0.4em] text-[10px]">
+    <div className="min-h-screen bg-[#020617] italic">
+      <header className="px-6 md:px-12 py-8 md:py-10 border-b border-white/5 backdrop-blur-md sticky top-0 z-20 bg-[#020617]/80">
+        <div className="flex items-center gap-2 text-indigo-500 mb-2 font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">
           <CalendarDays className="w-4 h-4" /> Schedule Management
         </div>
-        <h1 className="text-4xl font-black italic tracking-tighter text-white">
+        <h1 className="text-3xl md:text-4xl font-black italic tracking-tighter text-white uppercase">
           Pay <span className="text-indigo-600">Periods</span>
         </h1>
       </header>
 
       <NavTabs view={view} onNavigate={onNavigate} />
 
-      <div className="p-12 max-w-[1500px] w-full mx-auto space-y-10">
+      <div className="p-6 md:p-12 max-w-[1500px] w-full mx-auto space-y-8 md:space-y-10">
         <PeriodForm form={form} onChange={onFormChange} onSave={onSave} />
         <PeriodsTable payPeriods={payPeriods} />
       </div>

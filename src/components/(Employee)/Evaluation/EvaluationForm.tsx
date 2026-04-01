@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Send, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { Send, ArrowLeft, ShieldCheck, Loader2 } from 'lucide-react';
 
 const CRITERIA_MAP = {
   peer: [
@@ -88,52 +88,72 @@ export function EvaluationForm({ type, targetName, targetId, isSubmitting, onBac
   };
 
   return (
-    <section className="flex-1 overflow-y-auto bg-[#020617] h-full scrollbar-hide uppercase">
-      <div className="sticky top-0 z-50 bg-[#020617]/95 backdrop-blur-md border-b border-white/5 px-12 py-6 flex items-center justify-between">
+    <section className="flex-1 overflow-y-auto bg-[#020617] h-full scrollbar-hide uppercase pb-20">
+      {/* RESPONSIVE STICKY HEADER */}
+      <div className="sticky top-0 z-50 bg-[#020617]/95 backdrop-blur-md border-b border-white/5 px-6 lg:px-12 py-4 lg:py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black text-indigo-500 hover:text-indigo-400 tracking-widest mb-1 transition-all">
+          <button onClick={onBack} className="flex items-center gap-2 text-[9px] lg:text-[10px] font-black text-indigo-500 hover:text-indigo-400 tracking-widest mb-1 transition-all">
             <ArrowLeft className="w-3 h-3" /> CANCEL AND EXIT
           </button>
-          <h1 className="text-2xl font-black text-white tracking-tighter italic">
+          <h1 className="text-xl lg:text-2xl font-black text-white tracking-tighter italic truncate max-w-[280px] lg:max-w-none">
             OFFICIAL <span className="text-indigo-600">{type} EVALUATION</span>
           </h1>
-          <p className="text-[9px] font-bold text-slate-500 tracking-[0.3em] mt-1">
+          <p className="text-[8px] lg:text-[9px] font-bold text-slate-500 tracking-[0.2em] mt-0.5">
             TARGET: {targetName} &nbsp;·&nbsp; ID: {targetId}
           </p>
         </div>
 
-        <div className="text-right">
-          <p className="text-[9px] font-black text-slate-500 tracking-widest mb-1">EVALUATION RESULT</p>
-          <p className="text-2xl font-black text-white italic">
+        <div className="text-left md:text-right border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
+          <p className="text-[8px] lg:text-[9px] font-black text-slate-500 tracking-widest mb-0.5">LIVE SCORE RESULT</p>
+          <p className="text-xl lg:text-2xl font-black text-white italic">
             {liveScoreOutOf15.toFixed(2)}
-            <span className="text-slate-600 text-sm font-bold tracking-normal"> / 15.00</span>
+            <span className="text-slate-600 text-xs lg:text-sm font-bold tracking-normal"> / 15.00</span>
           </p>
-          <p className="text-[8px] font-black text-indigo-500 tracking-widest mt-1">
+          <p className="text-[7px] lg:text-[8px] font-black text-indigo-500 tracking-widest mt-0.5">
             {answeredCount} OF 15 POINTS EVALUATED
           </p>
         </div>
       </div>
 
-      <div className="px-12 py-10 max-w-5xl mx-auto space-y-4">
+      <div className="px-6 lg:px-12 py-8 lg:py-10 max-w-5xl mx-auto space-y-4">
         {criteria.map((criterion, index) => {
           const selected = scores[criterion.key];
           return (
-            <div key={criterion.key} className={`border rounded-[2rem] p-8 transition-all duration-300 ${selected ? 'bg-indigo-950/20 border-indigo-500/20 shadow-[0_0_40px_-15px_rgba(79,70,229,0.1)]' : 'bg-slate-900/30 border-white/5'}`}>
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div 
+              key={criterion.key} 
+              className={`border rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-8 transition-all duration-300 ${
+                selected ? 'bg-indigo-950/20 border-indigo-500/20 shadow-[0_0_40px_-15px_rgba(79,70,229,0.1)]' : 'bg-slate-900/30 border-white/5'
+              }`}
+            >
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                 <div className="flex items-start gap-4 flex-1">
-                  <span className="text-[9px] font-black text-slate-600 tracking-widest mt-1 w-5 shrink-0">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="text-[9px] font-black text-slate-600 tracking-widest mt-1 w-5 shrink-0">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                   <div>
                     <p className="text-sm font-black text-white tracking-tight">{criterion.label}</p>
-                    <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-1">{criterion.desc}</p>
-                    {selected && <p className="text-[9px] font-black text-indigo-400 tracking-[0.3em] mt-2">✓ RATING: {SCORE_LABELS[selected]}</p>}
+                    <p className="text-[10px] font-bold text-slate-500 tracking-widest mt-1 leading-relaxed">
+                      {criterion.desc}
+                    </p>
+                    {selected && (
+                      <p className="text-[9px] font-black text-indigo-400 tracking-[0.3em] mt-2 animate-in fade-in slide-in-from-left-2">
+                        ✓ RATING: {SCORE_LABELS[selected]}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div className="flex gap-2 bg-slate-950 p-2 rounded-2xl border border-white/5 shrink-0">
+
+                {/* Rating Buttons - Responsive Wrap */}
+                <div className="flex gap-1.5 lg:gap-2 bg-slate-950 p-1.5 lg:p-2 rounded-xl lg:rounded-2xl border border-white/5 shrink-0 w-fit">
                   {[1, 2, 3, 4, 5].map((num) => (
                     <button 
                       key={num} 
                       onClick={() => setScores(prev => ({...prev, [criterion.key]: num}))} 
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-xs transition-all ${selected === num ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(79,70,229,0.4)] scale-110' : 'text-slate-600 hover:text-indigo-400 hover:bg-white/5'}`}
+                      className={`w-10 h-10 lg:w-12 lg:h-12 rounded-lg lg:rounded-xl flex items-center justify-center font-black text-xs transition-all ${
+                        selected === num 
+                        ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(79,70,229,0.4)] scale-110' 
+                        : 'text-slate-600 hover:text-indigo-400 hover:bg-white/5'
+                      }`}
                     >
                       {num}
                     </button>
@@ -144,36 +164,53 @@ export function EvaluationForm({ type, targetName, targetId, isSubmitting, onBac
           );
         })}
 
+        {/* VALIDATION BOX */}
         {allScored && (
-          <div className="bg-indigo-950/30 border border-indigo-500/20 rounded-[2rem] p-8 flex items-center justify-between animate-in fade-in zoom-in duration-500">
+          <div className="bg-indigo-950/30 border border-indigo-500/20 rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-8 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in duration-500">
             <div className="flex items-center gap-3 text-indigo-400">
               <ShieldCheck className="w-5 h-5" />
-              <span className="text-[10px] font-black tracking-[0.4em]">AUDIT VALIDATED</span>
+              <span className="text-[9px] lg:text-[10px] font-black tracking-[0.4em]">AUDIT VALIDATED</span>
             </div>
-            <div className="text-right">
-              <p className="text-4xl font-black text-white italic">{finalAverage.toFixed(2)}</p>
-              <p className="text-[9px] font-black text-indigo-400 tracking-widest">FINAL AVERAGE (1-5)</p>
+            <div className="text-center sm:text-right">
+              <p className="text-3xl lg:text-4xl font-black text-white italic">{finalAverage.toFixed(2)}</p>
+              <p className="text-[8px] lg:text-[9px] font-black text-indigo-400 tracking-widest uppercase">Final Period Average (1-5)</p>
             </div>
           </div>
         )}
 
-        <div className="pt-4">
-          <label className="text-[10px] font-black text-slate-400 tracking-widest block mb-4 italic">Assessment Remarks</label>
+        {/* FEEDBACK AREA */}
+        <div className="pt-6">
+          <label className="text-[9px] lg:text-[10px] font-black text-slate-400 tracking-widest block mb-3 italic">
+            QUALITATIVE ASSESSMENT REMARKS
+          </label>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full h-40 bg-slate-900/40 border border-white/5 rounded-[2rem] p-8 text-white focus:border-indigo-500/50 outline-none transition-all text-xs tracking-widest leading-relaxed placeholder:text-slate-700"
-            placeholder="ENTER QUALITATIVE FEEDBACK..."
+            className="w-full h-40 bg-slate-900/40 border border-white/5 rounded-[1.5rem] lg:rounded-[2rem] p-6 lg:p-8 text-white focus:border-indigo-500/50 outline-none transition-all text-[11px] tracking-widest leading-relaxed placeholder:text-slate-700 resize-none"
+            placeholder="ENTER DETAILED OBSERVATIONS..."
           />
+          <p className="mt-2 text-[8px] font-bold text-slate-600 tracking-widest">MINIMUM 5 CHARACTERS REQUIRED</p>
         </div>
 
-        <div className="pb-12">
+        {/* SUBMIT BUTTON */}
+        <div className="pt-4 lg:pt-8">
           <button
             onClick={handleSubmit}
             disabled={!allScored || comment.trim().length < 5 || isSubmitting}
-            className={`w-full py-6 rounded-[2rem] font-black text-xs tracking-[0.5em] flex items-center justify-center gap-4 transition-all ${allScored && comment.trim().length >= 5 ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-500/20' : 'bg-slate-800 text-slate-600 cursor-not-allowed opacity-50'}`}
+            className={`w-full py-5 lg:py-6 rounded-[1.5rem] lg:rounded-[2rem] font-black text-[10px] lg:text-xs tracking-[0.5em] flex items-center justify-center gap-4 transition-all ${
+              allScored && comment.trim().length >= 5 
+              ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xl shadow-indigo-500/20 active:scale-[0.98]' 
+              : 'bg-slate-800 text-slate-600 cursor-not-allowed opacity-50'
+            }`}
           >
-            {isSubmitting ? 'SYNCHRONIZING...' : 'AUTHORIZE SUBMISSION'}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                SYNCHRONIZING...
+              </>
+            ) : (
+              'AUTHORIZE SUBMISSION'
+            )}
           </button>
         </div>
       </div>

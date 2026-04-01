@@ -20,9 +20,7 @@ interface TeamListUIProps {
 }
 
 export const TeamListUI = ({ agents, mode, onSelectAgent, onBack }: TeamListUIProps) => {
-  // --- FIX: Lazy Initializer ---
-  // We read from localStorage once during the very first render.
-  // This avoids the "Effect -> SetState -> Re-render" cycle.
+
   const [dept] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
