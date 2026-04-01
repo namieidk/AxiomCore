@@ -19,9 +19,9 @@ export const LoginHeader = () => (
       <Image 
         src="/logo.png" 
         alt="Axiom Logo" 
-        width={48} // Slightly larger logo footprint
+        width={48} 
         height={48} 
-        priority // Ensures fast loading on login screen
+        priority 
         className="object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]"
       />
     </div>
