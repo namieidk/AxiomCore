@@ -21,7 +21,7 @@ interface LeaveHistoryAPIResponse {
   status: string;
 }
 
-const API = 'http://localhost:5076/api/leave';
+const API = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/leave`;
 
 export default function LeaveReqPage() {
   const [credits, setCredits]             = useState<number>(0);
@@ -29,7 +29,6 @@ export default function LeaveReqPage() {
   const [requestedDays, setRequestedDays] = useState<number>(0);
   const [dates, setDates]                 = useState({ start: '', end: '' });
 
-  // ✅ Returns employeeId as int — matches Employee.EmployeeId (int) in the DB
   const getEmployeeId = useCallback((): number | null => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -80,7 +79,6 @@ export default function LeaveReqPage() {
     }
   }, []);
 
-  // ── Initial data load ──────────────────────────────────────────────────
   useEffect(() => {
     const id = getEmployeeId();
     if (!id) return;
@@ -93,7 +91,6 @@ export default function LeaveReqPage() {
     load();
   }, [getEmployeeId, fetchCredits, fetchHistory]);
 
-  // ── Date change handler ────────────────────────────────────────────────
   const handleDateChange = (type: 'start' | 'end', value: string) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -113,7 +110,6 @@ export default function LeaveReqPage() {
     }
   };
 
-  // ── Submit handler ─────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const employeeId = getEmployeeId();
@@ -129,7 +125,7 @@ export default function LeaveReqPage() {
     }
 
     const body = JSON.stringify({
-      employeeId,                           // number — matches int in C# model
+      employeeId,
       leaveType: formData.get('leaveType'),
       startDate: dates.start,
       endDate:   dates.end,

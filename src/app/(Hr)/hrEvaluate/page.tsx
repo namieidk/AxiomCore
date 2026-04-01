@@ -11,44 +11,41 @@ import { HRDepartmentSelectorUI } from '../../../components/(Hr)/Evaluation/HRDe
 
 type ViewState = 'hub' | 'departments' | 'evaluate' | 'results' | 'form';
 
-export default function HREvaluatePage() {
-  const [view, setView] = useState<ViewState>('hub');
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [activeDept, setActiveDept] = useState<string>(''); // Track chosen dept
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Evaluation`;
 
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [feedbacks, setFeedbacks] = useState<PeerFeedback[]>([]); 
+export default function HREvaluatePage() {
+  const [view, setView]                   = useState<ViewState>('hub');
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [activeDept, setActiveDept]       = useState<string>('');
+  const [agents, setAgents]               = useState<Agent[]>([]);
+  const [isLoading, setIsLoading]         = useState<boolean>(false);
+  const [feedbacks, setFeedbacks]         = useState<PeerFeedback[]>([]);
 
   const fetchRoster = useCallback(async (deptOverride?: string) => {
     try {
       setIsLoading(true);
       const stored = JSON.parse(localStorage.getItem('user') || '{}');
-      
-      // If evaluating managers, dept doesn't matter (global). 
-      // If viewing results, we use the selected department.
-      const dept = deptOverride || activeDept || stored.department;
+      const dept   = deptOverride || activeDept || stored.department;
 
-      const url = `http://localhost:5076/api/Evaluation/agents-with-status?` + 
-                  `department=${encodeURIComponent(dept)}&` +
-                  `excludeId=${stored.employeeId}&` +
-                  `viewerRole=HR&` +
-                  `mode=${view === 'form' ? 'evaluate' : view}`;
-      
-      const res = await fetch(url); 
+      const url =
+        `${API_BASE}/agents-with-status?` +
+        `department=${encodeURIComponent(dept)}&` +
+        `excludeId=${stored.employeeId}&` +
+        `viewerRole=HR&` +
+        `mode=${view === 'form' ? 'evaluate' : view}`;
+
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setAgents(data);
       }
     } catch (error) {
-      toast.error("DATABASE SYNC ERROR");
+      toast.error('DATABASE SYNC ERROR');
     } finally {
       setIsLoading(false);
     }
   }, [view, activeDept]);
 
-  // Trigger fetch when view changes to 'evaluate' (Global Managers) 
-  // or when 'activeDept' is set for 'results'
   useEffect(() => {
     if (view === 'evaluate' || (view === 'results' && activeDept)) {
       fetchRoster();
@@ -57,7 +54,7 @@ export default function HREvaluatePage() {
 
   const handleDeptSelect = (dept: string) => {
     setActiveDept(dept);
-    setView('results'); // Move to the list after selecting dept
+    setView('results');
   };
 
   const handleSelectAgent = async (agent: Agent) => {
@@ -65,13 +62,13 @@ export default function HREvaluatePage() {
     if (view === 'results') {
       try {
         setIsLoading(true);
-        const res = await fetch(`http://localhost:5076/api/Evaluation/peer-results/${agent.id}`);
+        const res = await fetch(`${API_BASE}/peer-results/${agent.id}`);
         if (res.ok) {
           const data = await res.json();
           setFeedbacks(data);
         }
       } catch (error) {
-        toast.error("ACCESS DENIED");
+        toast.error('ACCESS DENIED');
       } finally {
         setIsLoading(false);
       }
@@ -81,25 +78,36 @@ export default function HREvaluatePage() {
   };
 
   const renderContent = () => {
-    if (view === 'hub') return <HREvaluationHubUI onNavigate={(v) => setView(v === 'results' ? 'departments' : 'evaluate')} />;
-    
-    // NEW: Department Selection View
-    if (view === 'departments') return <HRDepartmentSelectorUI onSelect={handleDeptSelect} onBack={() => setView('hub')} />;
+    if (view === 'hub') return (
+      <HREvaluationHubUI onNavigate={(v) => setView(v === 'results' ? 'departments' : 'evaluate')} />
+    );
 
-    if (view === 'form' && selectedAgent) return <HREvaluationFormUI agent={selectedAgent} onBack={() => setView('evaluate')} onSubmit={() => { setView('hub'); fetchRoster(); }} />;
+    if (view === 'departments') return (
+      <HRDepartmentSelectorUI onSelect={handleDeptSelect} onBack={() => setView('hub')} />
+    );
 
-    if (selectedAgent && view === 'results') return <HRAuditResultsUI agent={selectedAgent} feedbacks={feedbacks} onClose={() => setSelectedAgent(null)} />;
+    if (view === 'form' && selectedAgent) return (
+      <HREvaluationFormUI
+        agent={selectedAgent}
+        onBack={() => setView('evaluate')}
+        onSubmit={() => { setView('hub'); fetchRoster(); }}
+      />
+    );
+
+    if (selectedAgent && view === 'results') return (
+      <HRAuditResultsUI agent={selectedAgent} feedbacks={feedbacks} onClose={() => setSelectedAgent(null)} />
+    );
 
     if (view === 'evaluate' || view === 'results') {
       return (
-        <HRTeamListUI 
-          agents={agents} 
-          mode={view} 
-          onSelectAgent={handleSelectAgent} 
+        <HRTeamListUI
+          agents={agents}
+          mode={view}
+          onSelectAgent={handleSelectAgent}
           onBack={() => {
             setView(view === 'results' ? 'departments' : 'hub');
             setSelectedAgent(null);
-          }} 
+          }}
         />
       );
     }
@@ -111,7 +119,9 @@ export default function HREvaluatePage() {
       <HRSidebar />
       <section className="flex-1 flex flex-col overflow-hidden relative">
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          {isLoading && <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#020617]/80 backdrop-blur-sm">...</div>}
+          {isLoading && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#020617]/80 backdrop-blur-sm">...</div>
+          )}
           {renderContent()}
         </div>
       </section>

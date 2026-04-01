@@ -32,6 +32,9 @@ export interface LeaveRequest {
   priority: string;
 }
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function ManagerReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,7 +67,8 @@ export default function ManagerReportsPage() {
     const fetchData = async (silent = false) => {
       try {
         if (!silent) setIsLoading(true);
-        const res = await fetch('http://localhost:5076/api/Reports/my-reports', {
+        // Replaced localhost with env variable
+        const res = await fetch(`${API_BASE_URL}/api/Reports/my-reports`, {
           headers: { 'X-Employee-Id': employeeId, 'Authorization': `Bearer ${token}` },
         });
         if (!res.ok) return;
@@ -105,7 +109,8 @@ export default function ManagerReportsPage() {
       try {
         if (!silent) setLeaveLoading(true);
         const token = localStorage.getItem('token');
-        const res = await fetch('http://localhost:5076/api/Leave/pending', {
+        // Replaced localhost with env variable
+        const res = await fetch(`${API_BASE_URL}/api/Leave/pending`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         if (res.ok) setLeaveRequests(await res.json());
@@ -125,7 +130,8 @@ export default function ManagerReportsPage() {
     try {
       setActionId(requestId);
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5076/api/Leave/manager-action', {
+      // Replaced localhost with env variable
+      const res = await fetch(`${API_BASE_URL}/api/Leave/manager-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ requestId, status: action }),

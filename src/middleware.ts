@@ -46,14 +46,10 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    // Cryptographically verify the JWT signature and expiry
     const { payload } = await jwtVerify(token, JWT_SECRET, {
       issuer:   'AxiomHRMS',
       audience: 'AxiomHRMSUsers',
     });
-
-    // Extract role from the verified payload
-    // The C# ClaimTypes.Role maps to the standard "role" claim in jose
     const role =
       (payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] as string)?.toUpperCase() ??
       (payload['role'] as string)?.toUpperCase() ??
@@ -73,9 +69,8 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch {
-    // Token is invalid, expired, or tampered with — send to login
     const response = NextResponse.redirect(new URL('/login', request.url));
-    // Clear the bad cookie
+
     response.cookies.delete('jwt');
     return response;
   }

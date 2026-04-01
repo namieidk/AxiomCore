@@ -53,9 +53,9 @@ export default function AdminReportsPage() {
       }
 
       const [reportsRes, statsRes, summaryRes] = await Promise.all([
-        fetch('http://localhost:5076/api/Reports/admin/all-reports', { headers }),
-        fetch('http://localhost:5076/api/Reports/admin/stats', { headers }),
-        fetch('http://localhost:5076/api/Reports/admin/summary', { headers }),
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Reports/admin/all-reports`, { headers }),
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Reports/admin/stats`, { headers }),
+        fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Reports/admin/summary`, { headers }),
       ]);
 
       if (reportsRes.ok) setReports(await reportsRes.json());
@@ -63,7 +63,6 @@ export default function AdminReportsPage() {
       if (summaryRes.ok) setSummary(await summaryRes.json());
 
       if (silent) {
-        // Optional: show a small toast when background data updates
         console.log("Admin Dashboard Auto-Synced");
       }
     } catch (err) {
@@ -122,7 +121,6 @@ export default function AdminReportsPage() {
       a.click();
       URL.revokeObjectURL(url);
 
-      // Success Toast
       toast.success("Audit Log Exported", {
         description: `${filename} has been saved to your downloads.`
       });
@@ -135,7 +133,6 @@ export default function AdminReportsPage() {
 
   return (
     <>
-      {/* Toast Notification Container */}
       <Toaster position="top-right" theme="dark" richColors />
       
       <AdminReportsUI 

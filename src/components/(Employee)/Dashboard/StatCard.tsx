@@ -20,7 +20,7 @@ export const StatCards = () => {
       if (!stored) return;
       const { employeeId } = JSON.parse(stored);
 
-      const response = await fetch(`http://localhost:5076/api/Dashboard/stats/${employeeId}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Dashboard/stats/${employeeId}`);
       
       if (response.ok) {
         const result = await response.json();

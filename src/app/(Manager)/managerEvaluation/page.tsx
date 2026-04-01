@@ -9,6 +9,9 @@ import { EvaluationFormUI } from '../../../components/(Manager)/Evaluation/Evalu
 
 type ViewState = 'hub' | 'evaluate' | 'results' | 'form' | 'peer-detail';
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function EvaluationPage() {
   const [view, setView]                   = useState<ViewState>('hub');
   const [agents, setAgents]               = useState<Agent[]>([]);
@@ -17,7 +20,8 @@ export default function EvaluationPage() {
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState<string | null>(null);
 
-  const API_BASE = "http://localhost:5076/api/Evaluation";
+  // Updated to use the environment variable
+  const API_BASE = `${API_BASE_URL}/api/Evaluation`;
 
   const getManagerInfo = () => {
     try {
@@ -41,7 +45,7 @@ export default function EvaluationPage() {
     setLoading(true);
     setError(null);
     try {
-      // FIX: use "mode" not "evaluationType" — backend param is named "mode"
+      // Replaced hardcoded localhost with environment variable logic via API_BASE
       const res = await fetch(
         `${API_BASE}/agents-with-status?department=${encodeURIComponent(dept)}&excludeId=${encodeURIComponent(id)}&viewerRole=${role}&mode=peer`
       );
@@ -54,7 +58,7 @@ export default function EvaluationPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [API_BASE]); // Added API_BASE to dependency array for best practices
 
   useEffect(() => { fetchAgents(); }, [fetchAgents]);
 
@@ -65,6 +69,7 @@ export default function EvaluationPage() {
     if (view === 'results') {
       setLoading(true);
       try {
+        // Replaced hardcoded localhost with environment variable logic via API_BASE
         const res = await fetch(`${API_BASE}/peer-results/${agent.id}`);
         const data = await res.json();
         setPeerFeedbacks(data);
@@ -85,6 +90,7 @@ export default function EvaluationPage() {
 
     setLoading(true);
     try {
+      // Replaced hardcoded localhost with environment variable logic via API_BASE
       const res = await fetch(`${API_BASE}/submit`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -5,6 +5,9 @@ import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerS
 import { ManagerApprovalsUI, ApprovalRequest } from '../../../components/(Manager)/Approvals/ManagerApprovals';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function ApprovalsPage() {
   const [requests, setRequests] = useState<ApprovalRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,7 +23,8 @@ export default function ApprovalsPage() {
     setFetchError(null);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5076/api/Leave/pending', {
+      // Replaced localhost with env variable
+      const response = await fetch(`${API_BASE_URL}/api/Leave/pending`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error(`Server responded with ${response.status}`);
@@ -54,7 +58,8 @@ export default function ApprovalsPage() {
   const handleAction = async (requestId: number, actionType: 'APPROVED' | 'REJECTED') => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5076/api/Leave/manager-action', {
+      // Replaced localhost with env variable
+      const response = await fetch(`${API_BASE_URL}/api/Leave/manager-action`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

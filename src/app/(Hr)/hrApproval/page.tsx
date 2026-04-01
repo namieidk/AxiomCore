@@ -5,6 +5,8 @@ import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { HRApprovalsUI, ApprovalRequest } from '../../../components/(Hr)/Approval/Hrapprovalsui';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Leave`;
+
 export default function HRApprovalsPage() {
   const [requests, setRequests] = useState<ApprovalRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,8 +17,7 @@ export default function HRApprovalsPage() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      // Only fetches MANAGER_APPROVED requests — manager-rejected ones never appear here
-      const response = await fetch('http://localhost:5076/api/Leave/hr-pending');
+      const response = await fetch(`${API_BASE}/hr-pending`);
       if (!response.ok) throw new Error(`Server responded with ${response.status}`);
       const data = await response.json();
       setRequests(data);
@@ -24,7 +25,7 @@ export default function HRApprovalsPage() {
       console.error('HR Queue Sync Error:', error);
       setFetchError(
         error instanceof TypeError && error.message === 'Failed to fetch'
-          ? 'Cannot reach the server. Make sure your ASP.NET backend is running on port 5076.'
+          ? 'Cannot reach the server. Make sure your ASP.NET backend is running.'
           : String(error)
       );
     } finally {
@@ -43,7 +44,7 @@ export default function HRApprovalsPage() {
 
   const handleAction = async (requestId: number, actionType: 'APPROVED' | 'REJECTED') => {
     try {
-      const response = await fetch('http://localhost:5076/api/Leave/hr-action', {
+      const response = await fetch(`${API_BASE}/hr-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ RequestId: requestId, Status: actionType }),

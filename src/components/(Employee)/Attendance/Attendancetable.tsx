@@ -40,7 +40,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
       const { employeeId } = JSON.parse(stored);
 
       try {
-        const res = await fetch(`http://localhost:5076/api/attendance/my-logs/${employeeId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance/my-logs/${employeeId}`);
         if (!res.ok) throw new Error("Failed to fetch");
         
         const data: Log[] = await res.json();

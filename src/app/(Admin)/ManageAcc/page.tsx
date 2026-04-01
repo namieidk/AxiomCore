@@ -38,11 +38,10 @@ export default function ManageAccountsPage() {
 
   useEffect(() => { fetchAccounts(); }, []);
 
-  // ── Fixed: credentials: 'include' on every fetch call ─────────────────────
   const fetchAccounts = async () => {
     try {
-      const response = await fetch('http://localhost:5076/api/admin/accounts', {
-        credentials: 'include',    // ← THE FIX
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/accounts`, {
+        credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
@@ -86,9 +85,9 @@ export default function ManageAccountsPage() {
 
   const handleReactivate = async (id: number) => {
     try {
-      const response = await fetch(`http://localhost:5076/api/admin/reactivate-account/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/reactivate-account/${id}`, {
         method:      'PUT',
-        credentials: 'include',    // ← THE FIX
+        credentials: 'include',
       });
       if (response.ok) {
         toast.success('IDENTITY RESTORED');
@@ -105,9 +104,9 @@ export default function ManageAccountsPage() {
     if (!targetRevokeId) return;
     setIsSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:5076/api/admin/revoke-account/${targetRevokeId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/revoke-account/${targetRevokeId}`, {
         method:      'PUT',
-        credentials: 'include',    // ← THE FIX
+        credentials: 'include',
       });
       if (response.ok) {
         setShowRevokeModal(false);
@@ -126,9 +125,9 @@ export default function ManageAccountsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:5076/api/admin/provision', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/provision`, {
         method:      'POST',
-        credentials: 'include',    // ← THE FIX
+        credentials: 'include',
         headers:     { 'Content-Type': 'application/json' },
         body:        JSON.stringify(formData),
       });
@@ -148,9 +147,9 @@ export default function ManageAccountsPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch(`http://localhost:5076/api/admin/update-account/${formData.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/update-account/${formData.id}`, {
         method:      'PUT',
-        credentials: 'include',    // ← THE FIX
+        credentials: 'include',
         headers:     { 'Content-Type': 'application/json' },
         body:        JSON.stringify(formData),
       });

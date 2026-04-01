@@ -43,14 +43,11 @@ export default function AdminSettingsPage() {
     storageUsage:   84,
   });
 
-  // ── FETCH SETTINGS ────────────────────────────────────────────────────────
-  // Fixed: added credentials: 'include' so the HttpOnly JWT cookie is sent.
-  // Without it the backend sees no token and returns 401.
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch('http://localhost:5076/api/admin/syssetting', {
-          credentials: 'include',   // ← THE FIX
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/syssetting`, {
+          credentials: 'include',
         });
         
         if (response.ok) {
@@ -68,7 +65,7 @@ export default function AdminSettingsPage() {
       } catch (error) {
         console.error('Connection Refused:', error);
         toast.error('CONNECTION OFFLINE', {
-          description: 'Ensure the C# Backend is active on port 5076.',
+          description: 'Ensure the backend server is active.',
         });
       } finally {
         setLoading(false);
@@ -77,14 +74,12 @@ export default function AdminSettingsPage() {
     fetchSettings();
   }, []);
 
-  // ── SAVE SETTINGS ─────────────────────────────────────────────────────────
-  // Fixed: added credentials: 'include' here too — PUT also needs the cookie.
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await fetch('http://localhost:5076/api/admin/syssetting', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/syssetting`, {
         method:      'PUT',
-        credentials: 'include',   // ← THE FIX
+        credentials: 'include',
         headers:     { 'Content-Type': 'application/json' },
         body:        JSON.stringify(settings),
       });

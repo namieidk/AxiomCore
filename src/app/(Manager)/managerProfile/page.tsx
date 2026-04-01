@@ -6,7 +6,8 @@ import { Loader2 } from 'lucide-react';
 import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerSidebar';
 import { ManagerProfileUI, UserData, EditForm } from '../../../components/(Manager)/Profile/Manageprofile';
 
-const API_BASE = "http://localhost:5076/api/user";
+// REPLACEMENT: Use the environment variable for the API base path
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user`;
 
 // Define a strict interface for the Cloudinary Response
 interface CloudinaryResponse {
@@ -50,6 +51,7 @@ export default function ManagerProfilePage() {
         const session = JSON.parse(userJson) as { employeeId: string };
         const employeeId = session.employeeId;
 
+        // Uses updated API_BASE
         const res = await fetch(`${API_BASE}/profile/${employeeId}`);
         if (!res.ok) throw new Error("FETCH_ERROR");
         
@@ -107,6 +109,7 @@ export default function ManagerProfilePage() {
         bannerImage: type === 'banner' ? secureUrl : (data.bannerImage || "")
       };
 
+      // Uses updated API_BASE
       const res = await fetch(`${API_BASE}/update-profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -138,6 +141,7 @@ export default function ManagerProfilePage() {
         bannerImage: data.bannerImage || ""
       };
 
+      // Uses updated API_BASE
       const res = await fetch(`${API_BASE}/update-profile`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

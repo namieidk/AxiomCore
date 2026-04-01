@@ -29,7 +29,7 @@ export const ShiftStatus = () => {
 
   const fetchStats = useCallback(async (empId: string) => {
     try {
-      const response = await fetch(`http://localhost:5076/api/attendance/weekly-summary/${empId}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance/weekly-summary/${empId}`);
       if (response.ok) {
         const data = await response.json();
         setStats({
@@ -59,16 +59,14 @@ export const ShiftStatus = () => {
     const endpoint = isClockedIn ? 'clockout' : 'clockin';
 
     try {
-      const res = await fetch(`http://localhost:5076/api/attendance/${endpoint}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ employeeId }),
       });
 
-      // Read body as text first — never throws, works on empty bodies too
       const rawText = await res.text();
 
-      // Try to extract a .message field from JSON, fall back to raw text
       let message: string | null = null;
       if (rawText) {
         try {
@@ -85,7 +83,6 @@ export const ShiftStatus = () => {
         localStorage.setItem(`isClockedIn_${employeeId}`, String(newStatus));
         fetchStats(employeeId);
       } else {
-        // Now correctly shows "TOO EARLY. SHIFT STARTS AT 22:00. CLOCK-IN ALLOWED FROM 21:30."
         setError(message?.toUpperCase() || `SHIFT ACTION DENIED (${res.status})`);
       }
     } catch (err) {

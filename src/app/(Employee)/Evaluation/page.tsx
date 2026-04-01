@@ -1,4 +1,3 @@
-// page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -35,7 +34,6 @@ export default function EvaluationPage() {
       setLoading(true);
       const user: LocalUser = JSON.parse(localStorage.getItem('user') || '{}');
       try {
-        // mode is exactly what card was clicked: "peer" | "managerial" | "hr"
         const params = new URLSearchParams({
           department: user.department || '',
           excludeId:  user.employeeId || '',
@@ -43,7 +41,7 @@ export default function EvaluationPage() {
           mode:       selectedType,
         });
 
-        const res = await fetch(`http://localhost:5076/api/Evaluation/agents-with-status?${params}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Evaluation/agents-with-status?${params}`);
         if (res.ok) {
           const data = await res.json();
           setAgents(data);
@@ -64,7 +62,7 @@ export default function EvaluationPage() {
     const user: LocalUser = JSON.parse(localStorage.getItem('user') || '{}');
 
     try {
-      const res = await fetch('http://localhost:5076/api/Evaluation/submit', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Evaluation/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

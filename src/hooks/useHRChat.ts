@@ -22,6 +22,9 @@ export interface Message {
 
 let ablyClient: Ably.Realtime | null = null;
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export function useHRChat() {
   const router = useRouter();
   const [isReady, setIsReady] = useState(false);
@@ -45,7 +48,7 @@ export function useHRChat() {
 
     const fetchDirectory = async () => {
       try {
-        const res = await fetch('http://localhost:5076/api/messages/users');
+        const res = await fetch(`${API_BASE_URL}/api/messages/users`);
         const data: HRContact[] = await res.json();
         const filtered = data.filter(u => u.employeeId !== user.employeeId);
         setContacts(filtered);
@@ -75,7 +78,8 @@ export function useHRChat() {
 
   useEffect(() => {
     if (!activeChat || !currentUser || !isReady) return;
-    const url = `http://localhost:5076/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
+    // Replaced localhost with env variable
+    const url = `${API_BASE_URL}/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
     
     fetch(url)
       .then(res => res.json())
@@ -102,7 +106,8 @@ export function useHRChat() {
     setMessages(prev => [...prev, payload]);
     setInput("");
 
-    await fetch('http://localhost:5076/api/messages/send', {
+    // Replaced localhost with env variable
+    await fetch(`${API_BASE_URL}/api/messages/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

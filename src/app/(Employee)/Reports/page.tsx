@@ -23,9 +23,8 @@ export interface UserProfile {
   position: string;
 }
 
-// ─── PDF DOWNLOAD HELPER ──────────────────────────────────────────────────────
-// If the backend provides a real URL (not '#'), open it directly.
-// Otherwise generate a polished printable HTML page as fallback.
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Reports`;
+
 export async function downloadReportPDF(report: Report, user: UserProfile | null) {
   // Real backend PDF — open directly
   if (report.downloadUrl && report.downloadUrl !== '#') {
@@ -330,8 +329,8 @@ export default function ReportsPage() {
   const [user, setUser]           = useState<UserProfile | null>(null);
   const [reports, setReports]     = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filterType, setFilterType]     = useState<string>('ALL');
-  const [activeChart, setActiveChart]   = useState<'bar' | 'line'>('bar');
+  const [filterType, setFilterType]   = useState<string>('ALL');
+  const [activeChart, setActiveChart] = useState<'bar' | 'line'>('bar');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -350,13 +349,13 @@ export default function ReportsPage() {
         };
 
         const [userRes, reportRes] = await Promise.all([
-          fetch('http://localhost:5076/api/Reports/user-profile', { headers }),
-          fetch('http://localhost:5076/api/Reports/my-reports',   { headers }),
+          fetch(`${API_BASE}/user-profile`, { headers }),
+          fetch(`${API_BASE}/my-reports`,   { headers }),
         ]);
 
         if (userRes.status === 401) throw new Error('UNAUTHORIZED');
-        if (userRes.ok)    setUser(await userRes.json());
-        if (reportRes.ok)  setReports(await reportRes.json());
+        if (userRes.ok)   setUser(await userRes.json());
+        if (reportRes.ok) setReports(await reportRes.json());
 
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error';

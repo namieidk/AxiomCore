@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import * as Ably from 'ably';
 import { useRouter } from 'next/navigation';
@@ -19,6 +18,8 @@ export interface Message {
   timestamp: string;
   fileUrl?: string; 
 }
+
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
 let ablyClient: Ably.Realtime | null = null;
 
@@ -45,7 +46,7 @@ export function useAdminChat() {
 
     const initAdmin = async () => {
       try {
-        const res = await fetch('http://localhost:5076/api/messages/users');
+        const res = await fetch(`${apiBaseUrl}/api/messages/users`);
         const data: AdminContact[] = await res.json();
         const filtered = data.filter(u => u.employeeId !== user.employeeId);
         setContacts(filtered);
@@ -62,7 +63,6 @@ export function useAdminChat() {
   useEffect(() => {
     if (!currentUser || !isReady) return;
     if (!ablyClient) ablyClient = new Ably.Realtime('sHtm4A.lTOpFg:yeyUSF3-dhElihs3wh97KzkCIERx4esrg0SDikHn_fQ');
-
     const channel = ablyClient.channels.get(`user-${currentUser.employeeId}`);
     channel.subscribe('message', (incoming) => {
       const newMsg = incoming.data as Message;
@@ -74,7 +74,7 @@ export function useAdminChat() {
 
   useEffect(() => {
     if (!activeChat || !currentUser || !isReady) return;
-    const url = `http://localhost:5076/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
+    const url = `${apiBaseUrl}/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
     fetch(url)
       .then(res => res.json())
       .then(data => setMessages(Array.isArray(data) ? data : []))
@@ -86,7 +86,6 @@ export function useAdminChat() {
   const handleSend = async (fileUrl?: string) => {
     if (!input.trim() && !fileUrl) return;
     if (!activeChat || !currentUser) return;
-
     const payload: Message = {
       senderId: currentUser.employeeId,
       receiverId: activeChat.employeeId,
@@ -94,11 +93,9 @@ export function useAdminChat() {
       timestamp: new Date().toISOString(),
       fileUrl: fileUrl || undefined
     };
-
     setMessages(prev => [...prev, payload]);
     setInput("");
-
-    await fetch('http://localhost:5076/api/messages/send', {
+    await fetch(`${apiBaseUrl}/api/messages/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -111,7 +108,6 @@ export function useAdminChat() {
     formData.append('file', file);
     formData.append('upload_preset', 'axiom_upload'); 
     formData.append('cloud_name', 'duxxwlurg');     
-
     try {
       const res = await fetch(`https://api.cloudinary.com/v1_1/duxxwlurg/image/upload`, {
         method: 'POST',
@@ -119,7 +115,6 @@ export function useAdminChat() {
       });
       const data = await res.json();
       if (data.secure_url) {
-        // Send message with the image URL
         await handleSend(data.secure_url);
       }
     } catch (err) {

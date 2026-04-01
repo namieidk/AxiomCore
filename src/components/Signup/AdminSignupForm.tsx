@@ -30,6 +30,8 @@ export const AdminSignupForm = () => {
 
   const isPasswordValid = Object.values(checks).every(Boolean);
 
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -45,7 +47,7 @@ export const AdminSignupForm = () => {
     setStatus({ type: null, message: '' });
 
     try {
-      const response = await fetch("http://localhost:5076/api/auth/register-admin", {
+      const response = await fetch(`${apiBaseUrl}/api/auth/register-admin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

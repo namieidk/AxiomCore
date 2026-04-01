@@ -45,7 +45,7 @@ export function useManagerChat() {
 
     const init = async () => {
       try {
-        const res = await fetch('http://localhost:5076/api/messages/users');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/messages/users`);
         const data: ChatContact[] = await res.json();
         // Removed HR Department GC; only showing personnel
         const filtered = data.filter(u => u.employeeId !== user.employeeId);
@@ -75,7 +75,7 @@ export function useManagerChat() {
 
   useEffect(() => {
     if (!activeChat || !currentUser || !isReady) return;
-    const url = `http://localhost:5076/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
     fetch(url)
       .then(res => res.json())
       .then(data => setMessages(Array.isArray(data) ? data : []))
@@ -99,7 +99,7 @@ export function useManagerChat() {
     setMessages(prev => [...prev, payload]);
     setInput("");
 
-    await fetch('http://localhost:5076/api/messages/send', {
+    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/messages/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

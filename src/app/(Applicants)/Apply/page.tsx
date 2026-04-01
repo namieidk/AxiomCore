@@ -89,7 +89,7 @@ function ApplyPageInner() {
       formData.append("CoverLetter", form.coverLetter);
       if (form.resume) formData.append("Resume", form.resume);
 
-      const res = await fetch("http://localhost:5076/api/applicants", { 
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/applicants`, { 
         method: "POST", 
         body: formData 
       });

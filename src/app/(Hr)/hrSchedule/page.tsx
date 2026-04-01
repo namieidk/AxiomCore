@@ -5,6 +5,9 @@ import { Toaster, toast } from 'sonner';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { HRScheduleUI, EmployeeSchedule, ScheduleSavePayload } from '../../../components/(Hr)/Schedule/HrSchedule';
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function HRSchedulePage() {
   const [employees, setEmployees] = useState<EmployeeSchedule[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -12,7 +15,8 @@ export default function HRSchedulePage() {
   const fetchRoster = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await fetch('http://localhost:5076/api/Schedule/roster');
+      // Replaced localhost with env variable
+      const res = await fetch(`${API_BASE_URL}/api/Schedule/roster`);
       if (res.ok) {
         const data: EmployeeSchedule[] = await res.json();
         setEmployees(data);
@@ -41,7 +45,8 @@ export default function HRSchedulePage() {
    */
   const handleSave = async (payload: ScheduleSavePayload) => {
     try {
-      const response = await fetch('http://localhost:5076/api/Schedule/save', {
+      // Replaced localhost with env variable
+      const response = await fetch(`${API_BASE_URL}/api/Schedule/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

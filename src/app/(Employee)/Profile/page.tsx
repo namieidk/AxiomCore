@@ -6,7 +6,7 @@ import { Sidebar } from '../../../components/(Employee)/Dashboard/Sidebar';
 import { Loader2 } from 'lucide-react';
 import { EmployeeProfileUI, EmployeeData, EditForm } from '../../../components/(Employee)/Profile/Employeeprofile';
 
-const API_BASE = 'http://localhost:5076/api/user';
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user`;
 
 export default function ProfilePage() {
   const [data,      setData]      = useState<EmployeeData | null>(null);

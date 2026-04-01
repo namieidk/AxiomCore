@@ -9,15 +9,12 @@ export const useAutoLogout = () => {
   const router = useRouter();
 
   const logout = useCallback(async () => {
-    // 1. Ask the backend to clear the HttpOnly JWT cookie.
-    //    We can't delete an HttpOnly cookie from JS — only the server can.
     try {
       await fetch('http://localhost:5076/api/auth/logout', {
         method: 'POST',
-        credentials: 'include', // must be included so the cookie is sent
+        credentials: 'include',
       });
     } catch {
-      // Even if the request fails (offline), proceed with local cleanup
     }
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');

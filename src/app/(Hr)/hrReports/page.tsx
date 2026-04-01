@@ -32,6 +32,9 @@ export interface SummaryStats {
   byType: { type: string; count: number }[];
 }
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function HRReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [summary, setSummary] = useState<SummaryStats | null>(null);
@@ -60,8 +63,9 @@ export default function HRReportsPage() {
       try {
         if (!silent) setIsLoading(true);
         const [repRes, sumRes] = await Promise.all([
-          fetch('http://localhost:5076/api/Reports/my-reports', { headers }),
-          fetch('http://localhost:5076/api/Reports/summary', { headers }),
+          // Replaced localhost with env variable
+          fetch(`${API_BASE_URL}/api/Reports/my-reports`, { headers }),
+          fetch(`${API_BASE_URL}/api/Reports/summary`, { headers }),
         ]);
         if (repRes.ok) setReports(await repRes.json());
         if (sumRes.ok) setSummary(await sumRes.json());
@@ -83,7 +87,8 @@ export default function HRReportsPage() {
     const fetchLeave = async (silent = false) => {
       try {
         if (!silent) setLeaveLoading(true);
-        const res = await fetch('http://localhost:5076/api/Leave/hr-pending', {
+        // Replaced localhost with env variable
+        const res = await fetch(`${API_BASE_URL}/api/Leave/hr-pending`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         if (res.ok) setLeaveRequests(await res.json());
@@ -103,7 +108,8 @@ export default function HRReportsPage() {
     try {
       setActionId(requestId);
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5076/api/Leave/hr-action', {
+      // Replaced localhost with env variable
+      const res = await fetch(`${API_BASE_URL}/api/Leave/hr-action`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

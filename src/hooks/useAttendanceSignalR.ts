@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
 
-// 1. Define strict interfaces for the data models
 interface BaseRecord {
   id: string;
   name: string;
@@ -11,16 +10,17 @@ export interface AttendanceNotification {
   employeeId: string;
   name: string;
   time: string;
-  dept: string; // Required for HR, can be empty string for others
+  dept: string;
 }
 
 interface UseAttendanceSignalRProps<T> {
   department: string;
   role?: 'HR' | 'MANAGER' | 'EMPLOYEE';
   onNewClockIn: (record: T) => void;
-  // ✅ Replaced 'any' with a concrete interface
   onLateNotification: (notification: AttendanceNotification) => void;
 }
+
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
 export function useAttendanceSignalR<T extends BaseRecord>({
   department,
@@ -34,7 +34,7 @@ export function useAttendanceSignalR<T extends BaseRecord>({
   useEffect(() => {
     let isMounted = true;
     
-    const url = `http://localhost:5076/hubs/attendance?department=${encodeURIComponent(department)}&role=${role}`;
+    const url = `${apiBaseUrl}/hubs/attendance?department=${encodeURIComponent(department)}&role=${role}`;
 
     const connection = new signalR.HubConnectionBuilder()
       .withUrl(url, {
@@ -45,12 +45,10 @@ export function useAttendanceSignalR<T extends BaseRecord>({
       .configureLogging(signalR.LogLevel.None)
       .build();
 
-    // ✅ Strongly typed listener for NewClockIn
     connection.on('NewClockIn', (record: T) => {
       if (isMounted) onNewClockIn(record);
     });
 
-    // ✅ Strongly typed listener for LateNotification
     connection.on('LateNotification', (notification: AttendanceNotification) => {
       if (isMounted) onLateNotification(notification);
     });

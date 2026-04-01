@@ -42,7 +42,7 @@ export default function AuditLogsPage() {
     try {
       const modParam = moduleFilter === 'ALL' ? '' : `&module=${moduleFilter}`;
       const res = await apiFetch(
-        `http://localhost:5076/api/Admin/activity-logs?page=${page}&limit=${PAGE_LIMIT}${modParam}`
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Admin/activity-logs?page=${page}&limit=${PAGE_LIMIT}${modParam}`
       );
 
       if (res.ok) {
@@ -63,7 +63,7 @@ export default function AuditLogsPage() {
   const fetchLoginLogs = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const res = await apiFetch('http://localhost:5076/api/Admin/login-logs');
+      const res = await apiFetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Admin/login-logs`);
 
       if (res.ok) {
         const data = await res.json();

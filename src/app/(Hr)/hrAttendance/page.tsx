@@ -5,23 +5,25 @@ import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { useAttendanceSignalR, AttendanceNotification } from '../../../hooks/useAttendanceSignalR';
 import { HRAttendanceUI, HRAttendanceRecord, HRFilterState } from '../../../components/(Hr)/Attendance/HRAttendanceUI';
 
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Attendance`;
+
 export default function HRAttendancePage() {
   const [attendanceData, setAttendanceData] = useState<HRAttendanceRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [notifications, setNotifications] = useState<AttendanceNotification[]>([]);
-  
-  const [filters, setFilters] = useState<HRFilterState>({ 
-    status: 'ALL', 
+
+  const [filters, setFilters] = useState<HRFilterState>({
+    status: 'ALL',
     department: 'ALL',
-    shift: 'ALL' 
+    shift: 'ALL',
   });
 
   // 1. Fetch Logic
   const fetchGlobalAttendance = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5076/api/Attendance/all`);
+      const response = await fetch(`${API_BASE}/all`);
       if (!response.ok) throw new Error('Failed to fetch');
       const data: HRAttendanceRecord[] = await response.json();
       setAttendanceData(data);
@@ -32,8 +34,8 @@ export default function HRAttendancePage() {
     }
   }, []);
 
-  useEffect(() => { 
-    fetchGlobalAttendance(); 
+  useEffect(() => {
+    fetchGlobalAttendance();
   }, [fetchGlobalAttendance]);
 
   // 2. SignalR Handlers
@@ -50,8 +52,8 @@ export default function HRAttendancePage() {
 
   // 3. Connect SignalR
   const { isConnected } = useAttendanceSignalR<HRAttendanceRecord>({
-    department: "", 
-    role: "HR",
+    department: '',
+    role: 'HR',
     onNewClockIn: handleNewClockIn,
     onLateNotification: handleLateNotification,
   });
@@ -59,11 +61,11 @@ export default function HRAttendancePage() {
   // 4. Filter Logic
   const filteredData = useMemo(() => {
     return attendanceData.filter((item) => {
-      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            item.id.toLowerCase().includes(searchTerm.toLowerCase());
-      
+      const matchesSearch =
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.id.toLowerCase().includes(searchTerm.toLowerCase());
+
       const matchesStatus = filters.status === 'ALL' || item.status === filters.status;
-      
       const matchesDept = filters.department === 'ALL' || item.dept === filters.department;
 
       let matchesShift = true;
@@ -78,12 +80,8 @@ export default function HRAttendancePage() {
     });
   }, [searchTerm, attendanceData, filters]);
 
-  // Handler for filter changes
   const handleFilterChange = (key: string, val: string) => {
-    setFilters(prev => ({ 
-      ...prev, 
-      [key]: val 
-    }));
+    setFilters((prev) => ({ ...prev, [key]: val }));
   };
 
   const handleResetFilters = () => {
@@ -91,15 +89,13 @@ export default function HRAttendancePage() {
   };
 
   const handleExport = () => {
-    console.log("Exporting Global Attendance Log...");
-    // Logic for CSV/PDF export goes here
+    console.log('Exporting Global Attendance Log...');
   };
 
   return (
     <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase">
       <HRSidebar />
       <section className="flex-1 flex flex-col overflow-hidden bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617]">
-    
 
         <div className="px-12 pt-6 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
@@ -123,7 +119,7 @@ export default function HRAttendancePage() {
           ))}
         </div>
 
-        <HRAttendanceUI 
+        <HRAttendanceUI
           data={filteredData}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}

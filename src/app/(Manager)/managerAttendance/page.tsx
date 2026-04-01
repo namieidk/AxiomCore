@@ -21,6 +21,9 @@ interface LateNotification {
   time: string;
 }
 
+// Helper to get the base URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function ManagerAttendancePage() {
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -50,7 +53,8 @@ export default function ManagerAttendancePage() {
     if (!department) return;
     (async () => {
       try {
-        const response = await fetch(`http://localhost:5076/api/Attendance/department/${department}`);
+        // Replaced localhost with env variable
+        const response = await fetch(`${API_BASE_URL}/api/Attendance/department/${department}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data: AttendanceRecord[] = await response.json();
         setAttendanceData(data);

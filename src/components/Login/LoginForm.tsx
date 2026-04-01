@@ -48,6 +48,7 @@ export const LoginForm = () => {
   const router = useRouter();
 
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? '';
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +66,7 @@ export const LoginForm = () => {
       }
 
       // 2. Send credentials + reCAPTCHA token to backend
-      // credentials: 'include' is required so the browser stores the
-      // HttpOnly JWT cookie that the backend sets via Set-Cookie
-      const response = await fetch('http://localhost:5076/api/auth/login', {
+      const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -82,8 +81,6 @@ export const LoginForm = () => {
         const id         = data.user.employeeId as string;
         const department = (data.user.department as string) || 'General';
 
-        // Store non-sensitive display info only.
-        // The JWT lives in an HttpOnly cookie — we never touch it from JS.
         const userPayload = { name, role, employeeId: id, department };
         localStorage.setItem('user', JSON.stringify(userPayload));
         localStorage.setItem('user_role', role);
@@ -105,7 +102,7 @@ export const LoginForm = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [employeeId, password, siteKey, router]);
+  }, [employeeId, password, siteKey, apiBaseUrl, router]);
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-6">
@@ -148,7 +145,7 @@ export const LoginForm = () => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••••••"
             autoComplete="current-password"
-            className="w-full px-5 py-4 pr-12 bg-slate-900/50 border border-white/5 rounded-2xl text-white outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-mono text-sm"
+            className="w-full px-5 py-4 pr-12 bg-slate-900/50 border border-white/5 rounded-full text-white outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-mono text-sm"
           />
           <button
             type="button"

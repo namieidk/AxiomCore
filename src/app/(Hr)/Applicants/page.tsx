@@ -17,6 +17,8 @@ interface Applicant {
   status: string;
 }
 
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/applicants`;
+
 export default function HRApplicantListPage() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -31,13 +33,13 @@ export default function HRApplicantListPage() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const response = await fetch('http://localhost:5076/api/applicants?status=PENDING', {
+      const response = await fetch(`${API_BASE}?status=PENDING`, {
         method: 'GET',
-        headers: { 'Accept': 'application/json' }
+        headers: { 'Accept': 'application/json' },
       });
-      
+
       if (!response.ok) throw new Error(`Error ${response.status}: Failed to fetch`);
-      
+
       const data: Applicant[] = await response.json();
       setApplicants(data);
     } catch (error) {
@@ -50,12 +52,12 @@ export default function HRApplicantListPage() {
 
   const handleStatusUpdate = async (app: Applicant, newStatus: 'APPROVED' | 'REJECTED') => {
     const actionText = newStatus === 'APPROVED' ? 'Approved' : 'Denied';
-    
+
     try {
-      const response = await fetch(`http://localhost:5076/api/applicants/${app.id}/status`, {
+      const response = await fetch(`${API_BASE}/${app.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       });
 
       if (response.ok) {
@@ -64,20 +66,20 @@ export default function HRApplicantListPage() {
           description: `${app.firstName} ${app.lastName} moved to ${newStatus.toLowerCase()} list.`,
         });
       } else {
-        toast.error("Action Failed");
+        toast.error('Action Failed');
       }
     } catch (error) {
-      toast.error("Connection Error");
+      toast.error('Connection Error');
     }
   };
 
-  const filteredApplicants = applicants.filter(app => 
+  const filteredApplicants = applicants.filter(app =>
     `${app.firstName} ${app.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     app.referenceCode.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <ApplicantListUI 
+    <ApplicantListUI
       applicants={filteredApplicants}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}

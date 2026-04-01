@@ -20,6 +20,8 @@ export interface Message {
   fileUrl?: string;
 }
 
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+
 let ablyClient: Ably.Realtime | null = null;
 
 export function useChatLogic() {
@@ -44,9 +46,8 @@ export function useChatLogic() {
 
     const initializeChat = async () => {
       try {
-        const res = await fetch('http://localhost:5076/api/messages/users');
+        const res = await fetch(`${apiBaseUrl}/api/messages/users`);
         const data: ChatUser[] = await res.json();
-        // Removed HQ-GENERAL; only showing direct personnel
         const list = data.filter((u) => u.employeeId !== user.employeeId);
 
         setCurrentUser(user);
@@ -77,7 +78,7 @@ export function useChatLogic() {
 
   useEffect(() => {
     if (!activeChat || !currentUser || !isReady) return;
-    const url = `http://localhost:5076/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
+    const url = `${apiBaseUrl}/api/messages/history?senderId=${currentUser.employeeId}&receiverId=${activeChat.employeeId}`;
     fetch(url)
       .then(res => res.json())
       .then(data => setMessages(Array.isArray(data) ? data : []))
@@ -103,7 +104,7 @@ export function useChatLogic() {
     setMessages(prev => [...prev, payload]);
     setInput("");
 
-    await fetch('http://localhost:5076/api/messages/send', {
+    await fetch(`${apiBaseUrl}/api/messages/send`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)

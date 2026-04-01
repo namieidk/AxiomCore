@@ -24,6 +24,8 @@ export interface PayslipData {
   generatedAt: string;
 }
 
+const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Payroll`;
+
 export default function PayrollPage() {
   const [history, setHistory] = useState<PayslipData[]>([]);
   const [activeSlip, setActiveSlip] = useState<PayslipData | null>(null);
@@ -36,13 +38,13 @@ export default function PayrollPage() {
       const userStr = localStorage.getItem('user');
       if (!userStr) return;
       const user = JSON.parse(userStr);
-      
+
       try {
-        const res = await fetch(`http://localhost:5076/api/Payroll/payslips?employeeId=${user.employeeId}`);
+        const res = await fetch(`${API_BASE}/payslips?employeeId=${user.employeeId}`);
         if (res.ok) {
           const data = await res.json();
           setHistory(data);
-          if (data.length > 0) setActiveSlip(data[0]); 
+          if (data.length > 0) setActiveSlip(data[0]);
         }
       } catch (e) {
         console.error("API Error:", e);
@@ -62,7 +64,7 @@ export default function PayrollPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <PayrollView 
+    <PayrollView
       activeSlip={activeSlip}
       visibleHistory={visibleHistory}
       currentPage={currentPage}
