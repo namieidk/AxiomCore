@@ -29,7 +29,6 @@ async function apiFetch(url: string): Promise<Response> {
 
 export default function AuditLogsPage() {
   const [mode, setMode]                 = useState<'activities' | 'logins'>('activities');
-  // ── Fixed: explicit generic types prevent TypeScript from inferring never[] ─
   const [loginLogs, setLoginLogs]       = useState<LoginLog[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [total, setTotal]               = useState<number>(0);

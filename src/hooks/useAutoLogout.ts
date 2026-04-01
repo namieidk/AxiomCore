@@ -19,8 +19,6 @@ export const useAutoLogout = () => {
     } catch {
       // Even if the request fails (offline), proceed with local cleanup
     }
-
-    // 2. Clear display-only localStorage values
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
     localStorage.removeItem('user_name');
