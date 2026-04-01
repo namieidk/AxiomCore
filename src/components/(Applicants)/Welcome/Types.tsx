@@ -27,8 +27,12 @@ export interface Job {
   badgeColor: string;
 }
 
+/** * This interface defines what ONE theme looks like.
+ * The error happened because TS thought 'dark' was a required property INSIDE the theme,
+ * rather than a key in the themes object.
+ */
 export interface Theme {
-  dark: boolean;
+  isDark: boolean; // Renamed from 'dark' to avoid confusion with the themes.dark key
   accent: string;
   accentSoft: string;
   accentBorder: string;
@@ -54,9 +58,9 @@ export interface Theme {
 
 // ─── THEME CONFIGURATION ──────────────────────────────────────────────────────
 
-export const themes: { dark: Theme; light: Theme } = {
+export const themes: Record<"dark" | "light", Theme> = {
   dark: {
-    dark: true,
+    isDark: true,
     bg: "#020617",
     surface: "#0f172a",
     surface2: "#1e293b",
@@ -80,7 +84,7 @@ export const themes: { dark: Theme; light: Theme } = {
     shadow: "rgba(0,0,0,0.4)",
   },
   light: {
-    dark: false,
+    isDark: false,
     bg: "#f8fafc",
     surface: "#ffffff",
     surface2: "#f1f5f9",
