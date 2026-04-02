@@ -23,7 +23,6 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
 };
 
-// ─── Publicly Accessible Routes (Must be lowercase here) ─────────────────────
 const PUBLIC_ROUTES = ['/login', '/signup', '/welcome'];
 
 const JWT_SECRET = new TextEncoder().encode(
@@ -31,12 +30,10 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export async function middleware(request: NextRequest) {
-  // Convert pathname to lowercase for comparison to handle /Welcome or /WELCOME
   const pathname = request.nextUrl.pathname;
   const lowercasePathname = pathname.toLowerCase();
 
-  // 1. PUBLIC ROUTE CHECK (Case Insensitive)
-  // We check if the lowercase version of the URL is in our public list
+  // 1. PUBLIC ROUTE CHECK
   const isPublicRoute = PUBLIC_ROUTES.some((route) => 
     lowercasePathname === route.toLowerCase() || 
     lowercasePathname.startsWith(`${route.toLowerCase()}/`)
@@ -64,23 +61,32 @@ export async function middleware(request: NextRequest) {
       audience: 'AxiomHRMSUsers',
     });
     
-    // Extract and normalize Role (Checking multiple claim types)
     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     const rawRole = (payload[roleClaim] || payload['role']) as string;
     const role = rawRole?.toUpperCase() ?? '';
 
-    const myRoutes = ROLE_ROUTES[role] ?? [];
+    // Get the allowed routes for the current user's role
+    const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
 
-    // 4. ROLE PROTECTION (Case Insensitive for route names)
-    const isForbidden = Object.entries(ROLE_ROUTES)
-      .filter(([r]) => r !== role)
-      .some(([, routes]) => routes.some((route) => 
+    // 4. IMPROVED ROLE PROTECTION
+    // Check if the current path belongs to a restricted area
+    const allProtectedRoutes = Object.values(ROLE_ROUTES).flat();
+    
+    const isAccessingProtectedRoute = allProtectedRoutes.some(route => 
+      lowercasePathname.startsWith(route.toLowerCase())
+    );
+
+    if (isAccessingProtectedRoute) {
+      // Check if the specific route is allowed for THIS specific role
+      const isAllowedForMe = myAllowedRoutes.some(route => 
         lowercasePathname.startsWith(route.toLowerCase())
-      ));
+      );
 
-    if (isForbidden) {
-      const home = myRoutes[0] ?? '/login';
-      return NextResponse.redirect(new URL(home, request.url));
+      if (!isAllowedForMe) {
+        // If not allowed, send them to their specific home page
+        const home = myAllowedRoutes[0] || '/login';
+        return NextResponse.redirect(new URL(home, request.url));
+      }
     }
 
     return NextResponse.next();
@@ -91,7 +97,6 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-// ─── Config ──────────────────────────────────────────────────────────────────
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',

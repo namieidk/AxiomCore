@@ -82,7 +82,6 @@ export const LoginForm = () => {
           department: data.user.department || 'General'
         });
 
-        // 2. Map routes to EXACT Capitalized folder names for Vercel (Linux)
         const routes: Record<string, string> = {
           'ADMIN':    '/adminDashboard',
           'MANAGER':  '/managerDashboard',
