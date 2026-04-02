@@ -3,8 +3,9 @@
 import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../../../context/AuthContext'; // Ensure this path is correct
 
-// ─── reCAPTCHA v3 type declarations (replaces "any") ─────────────────────────
+// ─── reCAPTCHA v3 type declarations ─────────────────────────────────────────
 interface GrecaptchaInstance {
   ready: (callback: () => void) => void;
   execute: (siteKey: string, options: { action: string }) => Promise<string>;
@@ -13,7 +14,6 @@ interface GrecaptchaInstance {
 interface WindowWithRecaptcha extends Window {
   grecaptcha: GrecaptchaInstance;
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 function loadRecaptcha(siteKey: string): Promise<void> {
   return new Promise((resolve) => {
@@ -31,15 +31,13 @@ async function getRecaptchaToken(siteKey: string, action: string): Promise<strin
   return new Promise((resolve, reject) => {
     const w = window as unknown as WindowWithRecaptcha;
     w.grecaptcha.ready(() => {
-      w.grecaptcha
-        .execute(siteKey, { action })
-        .then(resolve)
-        .catch(reject);
+      w.grecaptcha.execute(siteKey, { action }).then(resolve).catch(reject);
     });
   });
 }
 
 export const LoginForm = () => {
+  const { login } = useAuth(); 
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -48,7 +46,6 @@ export const LoginForm = () => {
   const router = useRouter();
 
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? '';
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,12 +53,12 @@ export const LoginForm = () => {
     setError(null);
 
     try {
-      // 1. Get reCAPTCHA v3 token
       let recaptchaToken = '';
       try {
         recaptchaToken = await getRecaptchaToken(siteKey, 'login');
       } catch {
-        setError('CAPTCHA FAILED. Please refresh and try again.');
+        setError('CAPTCHA FAILED. PLEASE REFRESH.');
+        setIsLoading(false);
         return;
       }
 
@@ -74,38 +71,43 @@ export const LoginForm = () => {
 
       const data = await response.json();
 
-      if (response.ok) {
-        const role       = (data.user.role as string).toUpperCase();
-        const name       = data.user.name as string;
-        const id         = data.user.employeeId as string;
-        const department = (data.user.department as string) || 'General';
+      if (response.ok && data.user) {
+        const role = (data.user.role as string).toUpperCase();
+        
+        // 1. Update Context (Login)
+        login({
+          id: data.user.employeeId,
+          name: data.user.name,
+          role: role,
+          department: data.user.department || 'General'
+        });
 
-        const userPayload = { name, role, employeeId: id, department };
-        localStorage.setItem('user', JSON.stringify(userPayload));
-        localStorage.setItem('user_role', role);
-        localStorage.setItem('user_name', name);
+        // 2. Map routes to EXACT Capitalized folder names for Vercel (Linux)
+        const routes: Record<string, string> = {
+          'ADMIN':    '/adminDashboard',
+          'MANAGER':  '/managerDashboard',
+          'HR':       '/hrDashboard',
+          'EMPLOYEE': '/Dashboard'
+        };
 
-        // 3. Redirect by role
-        switch (role) {
-          case 'ADMIN':    router.push('/adminDashboard');   break;
-          case 'MANAGER':  router.push('/managerDashboard'); break;
-          case 'HR':       router.push('/hrDashboard');      break;
-          case 'EMPLOYEE': router.push('/Dashboard');        break;
-          default:         router.push('/');                 break;
-        }
+        const targetPath = routes[role] || '/';
+
+        // 3. FORCE REDIRECT
+        // window.location.href fixes the 307/304 "fetch" hang shown in your screenshot
+        window.location.href = targetPath;
+
       } else {
-        setError((data.message as string) || 'IDENTITY VERIFICATION FAILED.');
+        setError(data.message || 'IDENTITY VERIFICATION FAILED.');
       }
-    } catch {
+    } catch (err) {
       setError('COMMUNICATIONS FAILURE: DATABASE OFFLINE.');
     } finally {
       setIsLoading(false);
     }
-  }, [employeeId, password, siteKey, apiBaseUrl, router]);
+  }, [employeeId, password, siteKey, login]);
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-6">
-
       {/* EMPLOYEE ID */}
       <div className="space-y-2">
         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">
@@ -118,8 +120,7 @@ export const LoginForm = () => {
           value={employeeId}
           onChange={(e) => setEmployeeId(e.target.value.toUpperCase())}
           placeholder="AX0000"
-          autoComplete="username"
-          className="w-full px-5 py-4 bg-slate-900/50 border border-white/5 rounded-2xl text-white outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-mono text-sm uppercase"
+          className="w-full px-5 py-4 bg-slate-900/50 border border-white/5 rounded-2xl text-white outline-none focus:border-indigo-500/50 transition-all font-mono text-sm uppercase"
         />
       </div>
 
@@ -129,12 +130,6 @@ export const LoginForm = () => {
           <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
             Password
           </label>
-          <button
-            type="button"
-            className="text-[10px] font-bold text-indigo-500 uppercase tracking-tighter hover:text-indigo-400 transition-colors"
-          >
-            Forgot Password?
-          </button>
         </div>
         <div className="relative">
           <input
@@ -143,8 +138,7 @@ export const LoginForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••••••"
-            autoComplete="current-password"
-            className="w-full px-5 py-4 pr-12 bg-slate-900/50 border border-white/5 rounded-full text-white outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 transition-all font-mono text-sm"
+            className="w-full px-5 py-4 pr-12 bg-slate-900/50 border border-white/5 rounded-full text-white outline-none focus:border-indigo-500/50 transition-all font-mono text-sm"
           />
           <button
             type="button"
@@ -164,19 +158,19 @@ export const LoginForm = () => {
         </div>
       )}
 
-      {/* reCAPTCHA legal notice (required by Google) */}
+      {/* reCAPTCHA legal notice */}
       <p className="text-[9px] text-slate-600 text-center">
         Protected by reCAPTCHA —{' '}
-        <a href="https://policies.google.com/privacy" className="underline hover:text-slate-400" target="_blank" rel="noreferrer">Privacy</a>
+        <a href="https://policies.google.com/privacy" className="underline" target="_blank" rel="noreferrer">Privacy</a>
         {' · '}
-        <a href="https://policies.google.com/terms" className="underline hover:text-slate-400" target="_blank" rel="noreferrer">Terms</a>
+        <a href="https://policies.google.com/terms" className="underline" target="_blank" rel="noreferrer">Terms</a>
       </p>
 
       {/* SUBMIT */}
       <button
         type="submit"
         disabled={isLoading}
-        className="group w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-600 text-white font-black rounded-2xl transition-all active:scale-[0.98] text-[11px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-xl shadow-indigo-600/20 border border-white/10"
+        className="group w-full py-5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-black rounded-2xl transition-all active:scale-[0.98] text-[11px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-xl border border-white/10"
       >
         {isLoading ? (
           <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -187,7 +181,6 @@ export const LoginForm = () => {
           </>
         )}
       </button>
-
     </form>
   );
 };
