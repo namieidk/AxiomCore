@@ -65,7 +65,6 @@ export const LoginForm = () => {
         return;
       }
 
-      // 2. Send credentials + reCAPTCHA token to backend
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

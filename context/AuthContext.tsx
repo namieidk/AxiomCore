@@ -33,7 +33,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("Auth initialization failed", e);
       }
     }
-    // Set loading to false after the check is done
     setLoading(false);
   }, []);
 
