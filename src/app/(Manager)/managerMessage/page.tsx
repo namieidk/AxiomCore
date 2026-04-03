@@ -4,8 +4,10 @@ import React, { useRef, useState } from 'react';
 import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerSidebar';
 import { Send, Search, ShieldCheck, MoreVertical, Paperclip, User, Lock, Loader2, ShieldAlert, ChevronLeft } from 'lucide-react';
 import { useManagerChat } from '../../../hooks/useManagerChat';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 export default function ManagerMessagesPage() {
+  useAutoLogout();
   const {
     isReady, currentUser, filteredContacts, activeChat, setActiveChat,
     messages, input, setInput, handleSend, searchTerm, setSearchTerm, 

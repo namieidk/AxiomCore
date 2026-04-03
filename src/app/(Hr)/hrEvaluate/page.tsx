@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { Toaster, toast } from 'sonner';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { HREvaluationHubUI } from '../../../components/(Hr)/Evaluation/HREvaluationHub';
@@ -8,12 +8,14 @@ import { HRTeamListUI, Agent } from '../../../components/(Hr)/Evaluation/HRTeamL
 import { HRAuditResultsUI, PeerFeedback } from '../../../components/(Hr)/Evaluation/HRAuditResults';
 import { HREvaluationFormUI } from '../../../components/(Hr)/Evaluation/HREvaluationFormUI';
 import { HRDepartmentSelectorUI } from '../../../components/(Hr)/Evaluation/HRDepartmentSelectorUI';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 type ViewState = 'hub' | 'departments' | 'evaluate' | 'results' | 'form';
 
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Evaluation`;
 
 export default function HREvaluatePage() {
+  useAutoLogout();
   const [view, setView]                   = useState<ViewState>('hub');
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [activeDept, setActiveDept]       = useState<string>('');

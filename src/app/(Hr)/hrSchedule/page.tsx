@@ -4,10 +4,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Toaster, toast } from 'sonner';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { HRScheduleUI, EmployeeSchedule, ScheduleSavePayload } from '../../../components/(Hr)/Schedule/HrSchedule';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function HRSchedulePage() {
+  useAutoLogout();
   const [employees, setEmployees] = useState<EmployeeSchedule[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 

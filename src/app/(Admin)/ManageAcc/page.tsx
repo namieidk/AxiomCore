@@ -8,7 +8,7 @@ import { ProvisionForm } from '../../../components/(Admin)/(ManageAcc)/Provision
 import { EditAccountForm } from '../../../components/(Admin)/(ManageAcc)/EditAccountForm';
 import { SessionGuard } from '../../../components/SessionGuard';
 import { ShieldAlert, Loader2 } from 'lucide-react';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 export interface ProvisionFormData {
   id?: number;
   name: string;
@@ -19,6 +19,7 @@ export interface ProvisionFormData {
 }
 
 export default function ManageAccountsPage() {
+  useAutoLogout();
   const [view, setView]               = useState<'list' | 'create' | 'edit'>('list');
   const [accounts, setAccounts]       = useState<UserAccount[]>([]);
   const [loading, setLoading]         = useState(true);

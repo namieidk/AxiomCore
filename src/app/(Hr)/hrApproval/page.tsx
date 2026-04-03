@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { HRApprovalsUI, ApprovalRequest } from '../../../components/(Hr)/Approval/Hrapprovalsui';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Leave`;
 
 export default function HRApprovalsPage() {
+  useAutoLogout();
   const [requests, setRequests] = useState<ApprovalRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);

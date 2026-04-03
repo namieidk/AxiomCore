@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { HRReportsUI } from '../../../components/(Hr)/Report/Report';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 export interface Report {
   id: string;
   reportNumber: string;
@@ -36,6 +36,7 @@ export interface SummaryStats {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function HRReportsPage() {
+  useAutoLogout();
   const [reports, setReports] = useState<Report[]>([]);
   const [summary, setSummary] = useState<SummaryStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);

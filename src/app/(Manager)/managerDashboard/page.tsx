@@ -3,6 +3,7 @@
 import React from 'react';
 import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerSidebar';
 import { NavbarWrapper } from '../../../components/(Employee)/Dashboard/NavbarWrapper'; 
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import { 
   Users, 
   AlertCircle, 
@@ -12,6 +13,7 @@ import {
 } from 'lucide-react';
 
 export default function ManagerDashboard() {
+  useAutoLogout();
   const stats = [
     { label: 'Active Headcount', val: '42', sub: '95% SHIFT FILL', icon: Users, color: 'text-indigo-400' },
     { label: 'Pending Leaves', val: '08', sub: 'ACTION REQUIRED', icon: AlertCircle, color: 'text-orange-400' },

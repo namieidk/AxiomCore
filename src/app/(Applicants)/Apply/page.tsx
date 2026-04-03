@@ -4,8 +4,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { themes } from "../../../components/(Applicants)/Welcome/Themes";
 import { ApplyFormUI, FormDataState } from "../../../components/(Applicants)/Applicants/ApplyForm";
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 function ApplyPageInner() {
+  useAutoLogout();
   const searchParams = useSearchParams();
   const router = useRouter();
 

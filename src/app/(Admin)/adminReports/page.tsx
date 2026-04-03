@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminReportsUI } from '../../../components/(Admin)/Report/Reports';
 import { Toaster, toast } from 'sonner';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 export interface Report {
   id: string;
@@ -33,6 +34,7 @@ export interface OrgSummary {
 }
 
 export default function AdminReportsPage() {
+  useAutoLogout();
   const [reports, setReports] = useState<Report[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [summary, setSummary] = useState<OrgSummary | null>(null);

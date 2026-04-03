@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import ReportsView from '../../../components/(Employee)/Reports/Reports';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 export interface Report {
   id: string;
   reportNumber: string;
@@ -326,6 +326,7 @@ export async function downloadReportPDF(report: Report, user: UserProfile | null
 // ─── PAGE ─────────────────────────────────────────────────────────────────────
 
 export default function ReportsPage() {
+  useAutoLogout();
   const [user, setUser]           = useState<UserProfile | null>(null);
   const [reports, setReports]     = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);

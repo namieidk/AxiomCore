@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import ManagerReportsView from '../../../components/(Manager)/Reports/Reports';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 export interface Report {
   id: string;
   reportNumber: string;
@@ -32,10 +32,10 @@ export interface LeaveRequest {
   priority: string;
 }
 
-// Helper to get the base URL from env
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function ManagerReportsPage() {
+  useAutoLogout();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [managerName, setManagerName] = useState('');

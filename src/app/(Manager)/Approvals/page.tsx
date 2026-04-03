@@ -4,11 +4,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerSidebar';
 import { ManagerApprovalsUI, ApprovalRequest } from '../../../components/(Manager)/Approvals/ManagerApprovals';
 import { AlertCircle, RefreshCw } from 'lucide-react';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 // Helper to get the base URL from env
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function ApprovalsPage() {
+  useAutoLogout();
   const [requests, setRequests] = useState<ApprovalRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);

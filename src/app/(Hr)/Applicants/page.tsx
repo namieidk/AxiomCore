@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ApplicantListUI } from '../../../components/(Hr)/Applicants/ApplicantList';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 interface Applicant {
   id: number;
   firstName: string;
@@ -20,6 +20,7 @@ interface Applicant {
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/applicants`;
 
 export default function HRApplicantListPage() {
+  useAutoLogout();
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);

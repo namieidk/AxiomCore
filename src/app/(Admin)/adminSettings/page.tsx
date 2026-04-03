@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Toaster, toast } from 'sonner';
 import { AdminSidebar } from '../../../components/(Admin)/Sidebar';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import { 
   Settings as SettingsIcon, 
   ShieldCheck, 
@@ -29,6 +30,7 @@ export interface SystemSettings {
 }
 
 export default function AdminSettingsPage() {
+    useAutoLogout();
   const [loading, setLoading]   = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerSidebar';
 import { ManagerAttendanceUI, AttendanceRecord } from '../../../components/(Manager)/Attendance/ManagerAttendance';
 import { useAttendanceSignalR } from '../../../hooks/useAttendanceSignalR';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 type StatusFilter = 'ALL' | 'PRESENT' | 'LATE' | 'ABSENT';
 type DateFilter = 'TODAY' | 'THIS_WEEK' | 'THIS_MONTH';
@@ -25,6 +26,7 @@ interface LateNotification {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function ManagerAttendancePage() {
+  useAutoLogout();
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);

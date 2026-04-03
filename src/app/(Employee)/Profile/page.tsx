@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '../../../components/(Employee)/Dashboard/Sidebar';
 import { Loader2 } from 'lucide-react';
 import { EmployeeProfileUI, EmployeeData, EditForm } from '../../../components/(Employee)/Profile/Employeeprofile';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user`;
 
 export default function ProfilePage() {
+  useAutoLogout();
   const [data,      setData]      = useState<EmployeeData | null>(null);
   const [loading,   setLoading]   = useState<boolean>(true);
   const [saving,    setSaving]    = useState<boolean>(false);

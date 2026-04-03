@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { NavbarWrapper } from '../../../components/(Employee)/Dashboard/NavbarWrapper';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import { 
   Users, 
   UserPlus, 
@@ -32,6 +33,7 @@ interface DashboardData {
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Dashboard`;
 
 export default function HRDashboard() {
+  useAutoLogout();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 

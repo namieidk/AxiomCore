@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, use } from 'react';
 import { HRSidebar } from '../../../components/(Hr)/Dashboard/sidebar';
 import { useAttendanceSignalR, AttendanceNotification } from '../../../hooks/useAttendanceSignalR';
 import { HRAttendanceUI, HRAttendanceRecord, HRFilterState } from '../../../components/(Hr)/Attendance/HRAttendanceUI';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Attendance`;
 
 export default function HRAttendancePage() {
+  useAutoLogout();
   const [attendanceData, setAttendanceData] = useState<HRAttendanceRecord[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);

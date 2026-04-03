@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { use, useRef, useState } from 'react';
 import { Sidebar } from '../../../components/(Employee)/Dashboard/Sidebar';  
 import { Send, Search, User, Loader2, ShieldAlert, Paperclip, ArrowLeft } from 'lucide-react';
 import { useChatLogic } from '../../../hooks/useChatLogic';
-
-// Define a strict interface for the User/Chat Partner
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 interface ChatPartner {
   employeeId: string;
   name: string;
@@ -23,6 +22,7 @@ interface Message {
 }
 
 export default function MessagesPage() {
+  useAutoLogout();
   const {
     isReady, 
     currentUser, 

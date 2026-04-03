@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, use } from 'react';
 import { LeaveRequestForm } from '../../../components/(Employee)/LeaveReq/LeaveRequestForm';
 import { Sidebar } from '@/src/components/(Employee)/Dashboard/Sidebar';
 import { SessionGuard } from '@/src/components/SessionGuard';
 import { Calendar, Clock, LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 interface LeaveHistoryItem {
   type: string;
   date: string;
@@ -24,6 +24,7 @@ interface LeaveHistoryAPIResponse {
 const API = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/leave`;
 
 export default function LeaveReqPage() {
+  useAutoLogout();
   const [credits, setCredits]             = useState<number>(0);
   const [history, setHistory]             = useState<LeaveHistoryItem[]>([]);
   const [requestedDays, setRequestedDays] = useState<number>(0);

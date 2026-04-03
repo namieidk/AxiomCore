@@ -6,12 +6,14 @@ import { EvaluationHubUI } from '../../../components/(Manager)/Evaluation/Evalua
 import { TeamListUI, Agent } from '../../../components/(Manager)/Evaluation/TeamListUI';
 import { PeerResultsUI } from '../../../components/(Manager)/Evaluation/PeerResultsUI';
 import { EvaluationFormUI } from '../../../components/(Manager)/Evaluation/EvaluationFormUi';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 type ViewState = 'hub' | 'evaluate' | 'results' | 'form' | 'peer-detail';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function EvaluationPage() {
+  useAutoLogout();
   const [view, setView]                   = useState<ViewState>('hub');
   const [agents, setAgents]               = useState<Agent[]>([]);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);

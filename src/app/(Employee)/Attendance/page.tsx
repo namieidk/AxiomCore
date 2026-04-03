@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { Sidebar } from '../../../components/(Employee)/Dashboard/Sidebar';
 import { AttendanceTable } from '../../../components/(Employee)/Attendance/Attendancetable';
 import { Calendar, X } from 'lucide-react';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 export default function AttendancePage() {
-  // State for date filtering
+  useAutoLogout();
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 

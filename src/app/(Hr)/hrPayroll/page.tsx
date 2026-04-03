@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import { Shell } from '../../../components/(Hr)/Payroll/Shell';
 import { DashboardView } from '../../../components/(Hr)/Payroll/Dashboard';
 import { EnrollmentView } from '../../../components/(Hr)/Payroll/Enrollment';
@@ -11,15 +11,11 @@ import { PeriodsView } from '../../../components/(Hr)/Payroll/Period';
 import { PayslipsView, PayslipDetailView } from '../../../components/(Hr)/Payroll/Payslip';
 
 import { PayrollRecord, PayPeriod, Payslip, PpForm, ViewType } from '../../../components/(Hr)/Payroll/Type';
-// Original import kept for type safety/reference, but we use the env variable below
 import { API as _unusedAPI } from '../../../components/(Hr)/Payroll/Utils';
-
-// REPLACEMENT: Use the environment variable for the API base path
 const API = process.env.NEXT_PUBLIC_API_BASE_URL + '/api/payroll'; 
-// Note: I added '/api/payroll' assuming your payroll endpoints are grouped there based on typical patterns. 
-// If your env variable already includes the full path or uses a different suffix, adjust the string above.
 
 export default function HRPayrollPage() {
+  useAutoLogout();
   // ── View ──────────────────────────────────────────────────────────────────
   const [view, setView] = useState<ViewType>('dashboard');
 

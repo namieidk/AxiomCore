@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AdminSidebar } from '../../../components/(Admin)/Sidebar';
 import { ActivityLogTable, ActivityLog } from '../../../components/(Admin)/(Auditlogs)/ActivityLogTable';
 import { LoginLogTable, LoginLog } from '../../../components/(Admin)/(Auditlogs)/LoginLogTable';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import {
   History, Loader2, Database, Cpu, ShieldAlert,
   RefreshCw, Filter,
@@ -28,6 +29,7 @@ async function apiFetch(url: string): Promise<Response> {
 }
 
 export default function AuditLogsPage() {
+  useAutoLogout();
   const [mode, setMode]                 = useState<'activities' | 'logins'>('activities');
   const [loginLogs, setLoginLogs]       = useState<LoginLog[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);

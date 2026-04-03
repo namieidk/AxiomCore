@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { themes }       from "../../../components/(Applicants)/Welcome/Themes";
 import { globalStyles } from "../../../components/(Applicants)/Welcome/Style";
 import { Job }          from "../../../components/(Applicants)/Welcome/Types";
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import Navbar        from "../../../components/(Applicants)/Welcome/Navbar";
 import Hero          from "../../../components/(Applicants)/Welcome/Hero";
 import JobsSection   from "../../../components/(Applicants)/Welcome/Jobsection";
@@ -18,6 +18,7 @@ const JobDetailsModal = dynamic(() => import("../../../components/(Applicants)/W
 const ApplyModal = dynamic(() => import("../../../components/(Applicants)/Welcome/Modals").then(mod => mod.ApplyModal), { ssr: false });
 
 export default function WelcomePage() {
+  useAutoLogout();
   const [scrolled, setScrolled] = useState<boolean>(false);
   const [detailJob, setDetailJob] = useState<Job | null>(null);
   const [applyJob, setApplyJob]   = useState<Job | null>(null);

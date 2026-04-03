@@ -6,6 +6,7 @@ import {
   Send, Search, User, Loader2, ShieldAlert, Paperclip, ArrowLeft, Lock 
 } from 'lucide-react';
 import { useHRChat } from '../../../hooks/useHRChat';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 // Define strict interfaces to match the Employee style
 interface ChatPartner {
@@ -24,6 +25,7 @@ interface Message {
 }
 
 export default function HRMessagePage() {
+  useAutoLogout();
   const {
     isReady, 
     currentUser, 

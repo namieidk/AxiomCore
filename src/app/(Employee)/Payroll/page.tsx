@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { PayrollView } from '../../../components/(Employee)/Payroll/Payroll';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 export interface PayslipData {
   id: number;
@@ -27,6 +28,7 @@ export interface PayslipData {
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Payroll`;
 
 export default function PayrollPage() {
+  useAutoLogout
   const [history, setHistory] = useState<PayslipData[]>([]);
   const [activeSlip, setActiveSlip] = useState<PayslipData | null>(null);
   const [loading, setLoading] = useState(true);

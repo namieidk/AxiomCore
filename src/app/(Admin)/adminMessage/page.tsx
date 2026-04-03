@@ -2,6 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { AdminSidebar } from '../../../components/(Admin)/Sidebar';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import { 
   Send, Search, ShieldAlert, MoreVertical, Paperclip, 
   User, Loader2, Zap, ChevronLeft 
@@ -9,6 +10,7 @@ import {
 import { useAdminChat } from '../../../hooks/useAdminChat';
 
 export default function AdminMessagePage() {
+  useAutoLogout();
   const {
     isReady, currentUser, filteredContacts, activeChat, setActiveChat,
     messages, input, setInput, handleSend, searchTerm, setSearchTerm, 

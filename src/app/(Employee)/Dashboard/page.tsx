@@ -7,8 +7,10 @@ import { NavbarWrapper } from '../../../components/(Employee)/Dashboard/NavbarWr
 import { PerformanceFeed } from '../../../components/(Employee)/Dashboard/PerformanceFeed';
 import { ShiftStatus } from '../../../components/(Employee)/Dashboard/ShiftStatus';
 import { SessionGuard } from '@/src/components/SessionGuard';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
 export default function EmployeeDashboard() {
+  useAutoLogout();
   return (
     <SessionGuard allowedRoles={['EMPLOYEE']}>
       <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase italic font-black">

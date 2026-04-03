@@ -5,16 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { ManagerSidebar } from '../../../components/(Manager)/Dashboard/ManagerSidebar';
 import { ManagerProfileUI, UserData, EditForm } from '../../../components/(Manager)/Profile/Manageprofile';
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 
-// REPLACEMENT: Use the environment variable for the API base path
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user`;
-
-// Define a strict interface for the Cloudinary Response
 interface CloudinaryResponse {
   secure_url: string;
 }
-
-// Define the interface for the update payload to match your C# DTO
 interface ProfileUpdatePayload extends EditForm {
   employeeId: string;
   profileImage: string;
@@ -22,6 +18,7 @@ interface ProfileUpdatePayload extends EditForm {
 }
 
 export default function ManagerProfilePage() {
+  useAutoLogout();
   const [data, setData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import { EvaluationView, Agent } from '../../../components/(Employee)/Evaluation/Evaluation';
 import { ShieldCheck, Loader2 } from 'lucide-react';
-
+import { useAutoLogout } from '../../../hooks/useAutoLogout';
 interface LocalUser {
   employeeId: string;
   name: string;
@@ -17,6 +17,7 @@ export interface EnhancedAgent extends Agent {
 }
 
 export default function EvaluationPage() {
+  useAutoLogout();
   const [hasMounted, setHasMounted] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [targetAgent, setTargetAgent] = useState<Agent | null>(null);
