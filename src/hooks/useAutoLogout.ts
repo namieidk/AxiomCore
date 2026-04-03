@@ -10,7 +10,7 @@ export const useAutoLogout = () => {
 
   const logout = useCallback(async () => {
     try {
-      await fetch('http://localhost:5076/api/auth/logout', {
+      await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -19,6 +19,7 @@ export const useAutoLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
     localStorage.removeItem('user_name');
+    localStorage.removeItem('user_session');
 
     // 3. Redirect to login
     router.push('/login');
