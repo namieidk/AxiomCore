@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,21 +10,23 @@ interface Props {
 }
 
 export const SessionGuard = ({ children, allowedRoles }: Props) => {
-  const router = useRouter();
+  const router            = useRouter();
   const { user, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
-    if (!user) return;
-
-    const role = user?.role?.toUpperCase() ?? localStorage.getItem('user_role');
-
-    if (!role || !allowedRoles.map(r => r.toUpperCase()).includes(role)) {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    const role = user.role.toUpperCase();
+    if (!allowedRoles.map(r => r.toUpperCase()).includes(role)) {
       router.push('/login');
     }
   }, [loading, user, allowedRoles, router]);
 
-  if (loading) return null;
+  // On server or while auth is still resolving — render nothing
+  if (typeof window === 'undefined' || loading) return null;
 
   return <>{children}</>;
 };
