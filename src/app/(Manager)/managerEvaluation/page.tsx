@@ -9,7 +9,6 @@ import { EvaluationFormUI } from '../../../components/(Manager)/Evaluation/Evalu
 
 type ViewState = 'hub' | 'evaluate' | 'results' | 'form' | 'peer-detail';
 
-// Helper to get the base URL from env
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function EvaluationPage() {
@@ -20,7 +19,6 @@ export default function EvaluationPage() {
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState<string | null>(null);
 
-  // Updated to use the environment variable
   const API_BASE = `${API_BASE_URL}/api/Evaluation`;
 
   const getManagerInfo = () => {
@@ -38,16 +36,17 @@ export default function EvaluationPage() {
     }
   };
 
-  const fetchAgents = useCallback(async () => {
+  const fetchAgents = useCallback(async (currentMode: ViewState = 'evaluate') => {
     const { id, dept, role } = getManagerInfo();
     if (!dept) return;
+
+    const apiMode = currentMode === 'results' ? 'results' : 'evaluate';
 
     setLoading(true);
     setError(null);
     try {
-      // Replaced hardcoded localhost with environment variable logic via API_BASE
       const res = await fetch(
-        `${API_BASE}/agents-with-status?department=${encodeURIComponent(dept)}&excludeId=${encodeURIComponent(id)}&viewerRole=${role}&mode=peer`
+        `${API_BASE}/agents-with-status?department=${encodeURIComponent(dept)}&excludeId=${encodeURIComponent(id)}&viewerRole=${role}&mode=${apiMode}`
       );
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const data = await res.json();
@@ -58,18 +57,17 @@ export default function EvaluationPage() {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE]); // Added API_BASE to dependency array for best practices
+  }, [API_BASE]);
 
-  useEffect(() => { fetchAgents(); }, [fetchAgents]);
+  useEffect(() => { fetchAgents('evaluate'); }, [fetchAgents]);
 
   const handleSelectAgent = async (agent: Agent) => {
     if (agent.alreadyEvaluated && view === 'evaluate') return;
-    
+
     setSelectedAgent(agent);
     if (view === 'results') {
       setLoading(true);
       try {
-        // Replaced hardcoded localhost with environment variable logic via API_BASE
         const res = await fetch(`${API_BASE}/peer-results/${agent.id}`);
         const data = await res.json();
         setPeerFeedbacks(data);
@@ -90,7 +88,6 @@ export default function EvaluationPage() {
 
     setLoading(true);
     try {
-      // Replaced hardcoded localhost with environment variable logic via API_BASE
       const res = await fetch(`${API_BASE}/submit`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -105,7 +102,7 @@ export default function EvaluationPage() {
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
       setView('hub');
-      fetchAgents();
+      fetchAgents('evaluate');
     } catch (err) {
       setError("Submission failed. Monthly limit reached or server error.");
     } finally {
@@ -122,16 +119,39 @@ export default function EvaluationPage() {
             ⚠ {error} <button onClick={() => setError(null)} className="ml-4 text-red-400 hover:text-white">✕</button>
           </div>
         )}
-        {view === 'hub' && <EvaluationHubUI onNavigate={(next) => setView(next as ViewState)} />}
+
+        {view === 'hub' && (
+          <EvaluationHubUI onNavigate={(next) => {
+            fetchAgents(next as ViewState);
+            setView(next as ViewState);
+          }} />
+        )}
+
         {(view === 'evaluate' || view === 'results') && (
-          <TeamListUI agents={agents} mode={view} onBack={() => setView('hub')} onSelectAgent={handleSelectAgent} />
+          <TeamListUI
+            agents={agents}
+            mode={view}
+            onBack={() => setView('hub')}
+            onSelectAgent={handleSelectAgent}
+          />
         )}
+
         {view === 'form' && selectedAgent && (
-          <EvaluationFormUI agent={selectedAgent} onBack={() => setView('evaluate')} onSubmit={handleFormSubmit} />
+          <EvaluationFormUI
+            agent={selectedAgent}
+            onBack={() => setView('evaluate')}
+            onSubmit={handleFormSubmit}
+          />
         )}
+
         {view === 'peer-detail' && selectedAgent && (
-          <PeerResultsUI agent={selectedAgent} feedbacks={peerFeedbacks} onClose={() => setView('results')} />
+          <PeerResultsUI
+            agent={selectedAgent}
+            feedbacks={peerFeedbacks}
+            onClose={() => setView('results')}
+          />
         )}
+
         {loading && (
           <div className="absolute inset-0 bg-[#020617]/90 backdrop-blur-md flex flex-col items-center justify-center z-50">
             <div className="w-32 h-1 bg-indigo-900/20 rounded-full overflow-hidden mb-4">
