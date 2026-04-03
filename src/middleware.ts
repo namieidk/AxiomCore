@@ -30,7 +30,6 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lowercasePathname = pathname.toLowerCase();
 
-  // 1. PUBLIC ROUTE CHECK
   const isPublicRoute = PUBLIC_ROUTES.some((route) => 
     lowercasePathname === route.toLowerCase() || 
     lowercasePathname.startsWith(`${route.toLowerCase()}/`)
@@ -38,17 +37,14 @@ export async function middleware(request: NextRequest) {
 
   if (isPublicRoute) return NextResponse.next();
 
-  // 2. AUTHENTICATION SHIELD
   const token = request.cookies.get('jwt')?.value;
 
-  // If no token exists, redirect to login UNLESS already on login
   if (!token) {
     if (pathname === '/login') return NextResponse.next();
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   try {
-    // 3. VERIFY JWT
     const { payload } = await jwtVerify(token, JWT_SECRET, {
       issuer: 'AxiomHRMS',
       audience: 'AxiomHRMSUsers',
@@ -61,9 +57,6 @@ export async function middleware(request: NextRequest) {
 
     const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
 
-    // 5. THE "BOUNCE" FIX: 
-    // If we are ALREADY logged in and try to visit /login or /, 
-    // redirect to our specific dashboard instead of staying on login.
     if (pathname === '/login' || pathname === '/' || pathname === '') {
       const home = myAllowedRoutes[0] || '/Dashboard';
       return NextResponse.redirect(new URL(home, request.url));

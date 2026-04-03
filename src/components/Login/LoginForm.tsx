@@ -1,11 +1,9 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
-import { useAuth } from '../../../context/AuthContext'; // Ensure this path is correct
+import { useAuth } from '../../../context/AuthContext';
 
-// ─── reCAPTCHA v3 type declarations ─────────────────────────────────────────
 interface GrecaptchaInstance {
   ready: (callback: () => void) => void;
   execute: (siteKey: string, options: { action: string }) => Promise<string>;
@@ -37,13 +35,12 @@ async function getRecaptchaToken(siteKey: string, action: string): Promise<strin
 }
 
 export const LoginForm = () => {
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading]   = useState(false);
   const [error, setError]           = useState<string | null>(null);
-  const router = useRouter();
 
   const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? '';
 
@@ -73,32 +70,40 @@ export const LoginForm = () => {
 
       if (response.ok && data.user) {
         const role = (data.user.role as string).toUpperCase();
-        
-        // 1. Update Context (Login)
+
+        // Save to context + localStorage (both keys)
         login({
           id: data.user.employeeId,
           name: data.user.name,
-          role: role,
-          department: data.user.department || 'General'
+          role,
+          department: data.user.department || 'General',
         });
 
+        // Wait for localStorage to actually write before navigating
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        // Verify localStorage saved correctly before redirecting
+        const saved = localStorage.getItem('user_session');
+        if (!saved) {
+          setError('SESSION SAVE FAILED. PLEASE TRY AGAIN.');
+          setIsLoading(false);
+          return;
+        }
+
         const routes: Record<string, string> = {
-          'ADMIN':    '/adminDashboard',
-          'MANAGER':  '/managerDashboard',
-          'HR':       '/hrDashboard',
-          'EMPLOYEE': '/Dashboard'
+          ADMIN:    '/adminDashboard',
+          MANAGER:  '/managerDashboard',
+          HR:       '/hrDashboard',
+          EMPLOYEE: '/Dashboard',
         };
 
-        const targetPath = routes[role] || '/';
-
-        // 3. FORCE REDIRECT
-        // window.location.href fixes the 307/304 "fetch" hang shown in your screenshot
-        window.location.href = targetPath;
+        // Full page navigation so middleware re-runs with the JWT cookie
+        window.location.href = routes[role] || '/';
 
       } else {
         setError(data.message || 'IDENTITY VERIFICATION FAILED.');
       }
-    } catch (err) {
+    } catch {
       setError('COMMUNICATIONS FAILURE: DATABASE OFFLINE.');
     } finally {
       setIsLoading(false);
