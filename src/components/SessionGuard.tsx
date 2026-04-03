@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { useAutoLogout } from '../hooks/useAutoLogout';
 
 interface Props {
   children: React.ReactNode;
@@ -12,18 +11,18 @@ interface Props {
 
 export const SessionGuard = ({ children, allowedRoles }: Props) => {
   const router = useRouter();
-  const { user, loading, logout } = useAuth();
-  const { logout: autoLogout } = useAutoLogout();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
+    if (!user) return;
 
     const role = user?.role?.toUpperCase() ?? localStorage.getItem('user_role');
 
     if (!role || !allowedRoles.map(r => r.toUpperCase()).includes(role)) {
-      autoLogout();
+      router.push('/login');
     }
-  }, [loading, user, allowedRoles, autoLogout]);
+  }, [loading, user, allowedRoles, router]);
 
   if (loading) return null;
 
