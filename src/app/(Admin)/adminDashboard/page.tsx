@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useAutoLogout } from '../../../hooks/useAutoLogout';
+
 import { AdminSidebar } from '../../../components/(Admin)/Sidebar';
 import { SessionGuard } from '../../../components/SessionGuard';
 import { 
@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
-  useAutoLogout();
   return (
     <SessionGuard allowedRoles={['ADMIN']}>
       {/* Changed flex to flex-col on mobile, flex-row on desktop */}

@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-// ─── Role → allowed route prefixes ───────────────────────────────────────────
+// ─── Role → allowed route prefixes (MATCHING YOUR FOLDERS) ───────────────────
 const ROLE_ROUTES: Record<string, string[]> = {
-  APPLICANTS: ['/welcome', '/apply'],
+  Applicants: ['/welcome', '/apply'],
   ADMIN: [
     '/adminDashboard', '/adminMessage', '/adminReports',
     '/adminSettings', '/Auditlogs', '/ManageAcc',
@@ -30,8 +30,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lowercasePathname = pathname.toLowerCase();
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
-    lowercasePathname === route.toLowerCase() ||
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => 
+    lowercasePathname === route.toLowerCase() || 
     lowercasePathname.startsWith(`${route.toLowerCase()}/`)
   );
 
@@ -46,35 +46,28 @@ export async function middleware(request: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET, {
-      issuer:   'AxiomHRMS',
+      issuer: 'AxiomHRMS',
       audience: 'AxiomHRMSUsers',
     });
+    
+    const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+    const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
+    const role = rawRole?.toUpperCase() ?? '';
 
-    console.log('JWT payload:', JSON.stringify(payload));
+    const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
 
-    const roleClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
-    const rawRole   = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
-    const role      = rawRole?.toUpperCase() ?? '';
-
-    // Case-insensitive role key match
-    const matchedRole     = Object.keys(ROLE_ROUTES).find(k => k.toUpperCase() === role) ?? '';
-    const myAllowedRoutes = ROLE_ROUTES[matchedRole] ?? [];
-
-    console.log('Role detected:', role, '| Matched key:', matchedRole, '| Routes:', myAllowedRoutes);
-
-    // Redirect away from login/root if already authenticated
     if (pathname === '/login' || pathname === '/' || pathname === '') {
       const home = myAllowedRoutes[0] || '/Dashboard';
       return NextResponse.redirect(new URL(home, request.url));
     }
 
     const allProtectedPaths = Object.values(ROLE_ROUTES).flat();
-    const isInsideProtectedArea = allProtectedPaths.some(p =>
+    const isInsideProtectedArea = allProtectedPaths.some(p => 
       lowercasePathname.startsWith(p.toLowerCase())
     );
 
     if (isInsideProtectedArea) {
-      const hasPermission = myAllowedRoutes.some(p =>
+      const hasPermission = myAllowedRoutes.some(p => 
         lowercasePathname.startsWith(p.toLowerCase())
       );
 
@@ -87,7 +80,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 
   } catch (err) {
-    console.log('JWT verify failed:', err);
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.delete('jwt');
     return response;
