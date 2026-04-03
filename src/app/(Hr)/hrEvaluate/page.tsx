@@ -21,22 +21,29 @@ export default function HREvaluatePage() {
   const [isLoading, setIsLoading]         = useState<boolean>(false);
   const [feedbacks, setFeedbacks]         = useState<PeerFeedback[]>([]);
 
-  const fetchRoster = useCallback(async (deptOverride?: string) => {
+  const fetchRoster = useCallback(async (deptOverride?: string, viewOverride?: ViewState) => {
     try {
       setIsLoading(true);
       const stored = JSON.parse(localStorage.getItem('user') || '{}');
       const dept   = deptOverride || activeDept || stored.department;
+      const currentView = viewOverride ?? view;
+
+      // Map view to correct API mode
+      const apiMode =
+        currentView === 'evaluate' || currentView === 'form' ? 'hr-targets' :
+        currentView === 'results'                            ? 'hr-results'  :
+        'hr-targets';
 
       const url =
         `${API_BASE}/agents-with-status?` +
         `department=${encodeURIComponent(dept)}&` +
         `excludeId=${stored.employeeId}&` +
         `viewerRole=HR&` +
-        `mode=${view === 'form' ? 'evaluate' : view}`;
+        `mode=${apiMode}`;
 
       const res = await fetch(url);
       if (res.ok) {
-        const data = await res.json();
+        const data: Agent[] = await res.json();
         setAgents(data);
       }
     } catch (error) {
@@ -54,6 +61,7 @@ export default function HREvaluatePage() {
 
   const handleDeptSelect = (dept: string) => {
     setActiveDept(dept);
+    fetchRoster(dept, 'results');
     setView('results');
   };
 
