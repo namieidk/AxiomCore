@@ -16,8 +16,6 @@ export const SessionGuard = ({ children, allowedRoles }: Props) => {
   const { logout: autoLogout } = useAutoLogout();
 
   useEffect(() => {
-    // CRITICAL: wait for AuthContext to finish reading localStorage
-    // Without this check, it fires before user is loaded and always redirects
     if (loading) return;
 
     const role = user?.role?.toUpperCase() ?? localStorage.getItem('user_role');
@@ -27,7 +25,6 @@ export const SessionGuard = ({ children, allowedRoles }: Props) => {
     }
   }, [loading, user, allowedRoles, autoLogout]);
 
-  // Show nothing while loading to prevent flash of redirect
   if (loading) return null;
 
   return <>{children}</>;

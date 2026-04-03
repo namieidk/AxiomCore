@@ -50,7 +50,6 @@ export async function middleware(request: NextRequest) {
       audience: 'AxiomHRMSUsers',
     });
     
-    // 4. ROLE EXTRACTION
     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
     const role = rawRole?.toUpperCase() ?? '';
@@ -62,7 +61,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL(home, request.url));
     }
 
-    // 6. AREA PROTECTION
     const allProtectedPaths = Object.values(ROLE_ROUTES).flat();
     const isInsideProtectedArea = allProtectedPaths.some(p => 
       lowercasePathname.startsWith(p.toLowerCase())
@@ -73,7 +71,6 @@ export async function middleware(request: NextRequest) {
         lowercasePathname.startsWith(p.toLowerCase())
       );
 
-      // If they try to access a route that doesn't belong to their role
       if (!hasPermission) {
         const myHome = myAllowedRoutes[0] || '/Dashboard';
         return NextResponse.redirect(new URL(myHome, request.url));
@@ -83,7 +80,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
 
   } catch (err) {
-    // If JWT is expired or invalid, clear cookie and force login
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.delete('jwt');
     return response;
