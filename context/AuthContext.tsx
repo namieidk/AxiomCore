@@ -17,6 +17,12 @@ interface AuthContextType {
   loading: boolean;
 }
 
+interface AuthState {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function loadUserFromStorage(): { user: User | null; token: string | null } {
@@ -28,9 +34,9 @@ function loadUserFromStorage(): { user: User | null; token: string | null } {
     const parsed = JSON.parse(saved);
     return {
       user: {
-        id: parsed.id || parsed.employeeId,
-        name: parsed.name,
-        role: parsed.role,
+        id:         parsed.id || parsed.employeeId,
+        name:       parsed.name,
+        role:       parsed.role,
         department: parsed.department || 'General',
       },
       token,
@@ -45,40 +51,45 @@ function loadUserFromStorage(): { user: User | null; token: string | null } {
 }
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(() => loadUserFromStorage().user);
-  const [token, setToken] = useState<string | null>(() => loadUserFromStorage().token);
-
-  const loading = false;
+  // Lazy initializer — runs once on mount, no useEffect needed
+  const [state, setState] = useState<AuthState>(() => {
+    const { user, token } = loadUserFromStorage();
+    return { user, token, loading: false };
+  });
 
   const login = (userData: User, jwtToken: string) => {
     try {
       localStorage.setItem('user_session', JSON.stringify(userData));
       localStorage.setItem('user', JSON.stringify({
         employeeId: userData.id,
-        name: userData.name,
-        role: userData.role,
+        name:       userData.name,
+        role:       userData.role,
         department: userData.department,
       }));
       localStorage.setItem('user_role', userData.role.toUpperCase());
       localStorage.setItem('jwt_token', jwtToken);
-      setUser(userData);
-      setToken(jwtToken);
+      setState({ user: userData, token: jwtToken, loading: false });
     } catch (e) {
       console.error('Failed to save session to localStorage', e);
     }
   };
 
   const logout = () => {
-    setUser(null);
-    setToken(null);
     localStorage.removeItem('user_session');
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
     localStorage.removeItem('jwt_token');
+    setState({ user: null, token: null, loading: false });
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{
+      user:    state.user,
+      token:   state.token,
+      loading: state.loading,
+      login,
+      logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );
