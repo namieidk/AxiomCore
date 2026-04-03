@@ -96,20 +96,24 @@ export default function HRPayrollPage() {
   };
 
   const handleEnroll = async () => {
-    if (!targetEmployee) return;
-    try {
-      const res = await fetch(`${API}/enroll`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ employeeId: targetEmployee.id, basicSalary: salary }),
-      });
-      if (res.ok) {
-        toast.success('LEDGER COMMITTED');
-        setView('dashboard');
-        fetchRoster();
-      }
-    } catch { toast.error('SYNC FAILURE'); }
-  };
+  if (!targetEmployee) return;
+  if (!targetEmployee.sssId || !targetEmployee.pagibigId || !targetEmployee.philId) {
+    toast.error('STATUTORY IDs INCOMPLETE — CANNOT ENROLL');
+    return;
+  }
+  try {
+    const res = await fetch(`${API}/enroll`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ employeeId: targetEmployee.id, basicSalary: salary }),
+    });
+    if (res.ok) {
+      toast.success('LEDGER COMMITTED');
+      setView('dashboard');
+      fetchRoster();
+    }
+  } catch { toast.error('SYNC FAILURE'); }
+};
 
   // ─── Pay Periods ──────────────────────────────────────────────────────────
 

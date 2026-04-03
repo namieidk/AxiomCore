@@ -8,8 +8,6 @@ import {
 import { PayrollRecord } from './Type';
 import { fmt, calcDeductions } from './Utils';
 
-// ─── Employee Search Dropdown ─────────────────────────────────────────────────
-
 interface EmployeeSearchProps {
   searchTerm: string;
   onSearchChange: (val: string) => void;
@@ -31,9 +29,11 @@ function EmployeeSearch({
   salary,
   dropdownRef,
 }: EmployeeSearchProps) {
-  
-  const filtered = payrollList.filter(e => 
-    e.status !== 'PROCESSED' && (
+
+  const filtered = payrollList.filter(e =>
+    e.status !== 'PROCESSED' &&
+    e.sssId && e.pagibigId && e.philId &&
+    (
       e.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       e.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -78,8 +78,9 @@ function EmployeeSearch({
                   </div>
                 ))
               ) : (
-                <div className="p-5 text-center text-[8px] font-black text-slate-500 uppercase italic tracking-widest">
-                  No Unenrolled Personnel Found
+                <div className="p-5 text-center space-y-1">
+                  <p className="text-[8px] font-black text-slate-500 uppercase italic tracking-widest">No Eligible Personnel Found</p>
+                  <p className="text-[7px] font-bold text-slate-600 uppercase tracking-widest">Statutory IDs Required Before Enrollment</p>
                 </div>
               )}
             </div>
@@ -201,9 +202,9 @@ export function EnrollmentView({
               Secure Enrollment Portal <br className="sm:hidden" /> | Ledger v2.0
             </p>
           </div>
-          <button 
-            onClick={onEnroll} 
-            disabled={!targetEmployee} 
+          <button
+            onClick={onEnroll}
+            disabled={!targetEmployee}
             className={`w-full md:w-auto px-10 md:px-16 py-4 md:py-6 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] transition-all uppercase flex items-center justify-center ${!!targetEmployee ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xl shadow-indigo-600/20 active:scale-95' : 'bg-slate-800 text-slate-600 cursor-not-allowed'}`}
           >
             <Save className="w-4 h-4 mr-2" /> Secure Record
