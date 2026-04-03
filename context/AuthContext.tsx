@@ -11,42 +11,46 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (userData: User) => void;
+  token: string | null;
+  login: (userData: User, token: string) => void;
   logout: () => void;
   loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// ── Run once at module load, outside React — no effect needed ──
-function loadUserFromStorage(): User | null {
-  if (typeof window === 'undefined') return null; // SSR guard
+function loadUserFromStorage(): { user: User | null; token: string | null } {
+  if (typeof window === 'undefined') return { user: null, token: null };
   try {
     const saved = localStorage.getItem('user_session') || localStorage.getItem('user');
-    if (!saved) return null;
+    const token = localStorage.getItem('jwt_token');
+    if (!saved) return { user: null, token: null };
     const parsed = JSON.parse(saved);
     return {
-      id: parsed.id || parsed.employeeId,
-      name: parsed.name,
-      role: parsed.role,
-      department: parsed.department || 'General',
+      user: {
+        id: parsed.id || parsed.employeeId,
+        name: parsed.name,
+        role: parsed.role,
+        department: parsed.department || 'General',
+      },
+      token,
     };
   } catch {
     localStorage.removeItem('user_session');
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
-    return null;
+    localStorage.removeItem('jwt_token');
+    return { user: null, token: null };
   }
 }
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  // Initialize directly — no useEffect, no cascading renders
-  const [user, setUser] = useState<User | null>(() => loadUserFromStorage());
+  const [user, setUser] = useState<User | null>(() => loadUserFromStorage().user);
+  const [token, setToken] = useState<string | null>(() => loadUserFromStorage().token);
 
-  // loading is always false now because useState initializer is synchronous
   const loading = false;
 
-  const login = (userData: User) => {
+  const login = (userData: User, jwtToken: string) => {
     try {
       localStorage.setItem('user_session', JSON.stringify(userData));
       localStorage.setItem('user', JSON.stringify({
@@ -56,7 +60,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         department: userData.department,
       }));
       localStorage.setItem('user_role', userData.role.toUpperCase());
+      localStorage.setItem('jwt_token', jwtToken);
       setUser(userData);
+      setToken(jwtToken);
     } catch (e) {
       console.error('Failed to save session to localStorage', e);
     }
@@ -64,13 +70,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem('user_session');
     localStorage.removeItem('user');
     localStorage.removeItem('user_role');
+    localStorage.removeItem('jwt_token');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

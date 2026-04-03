@@ -62,33 +62,28 @@ export const LoginForm = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body: JSON.stringify({ employeeId, password, recaptchaToken }),
       });
 
       const data = await response.json();
 
-      if (response.ok && data.user) {
+      if (response.ok && data.user && data.token) {
         const role = (data.user.role as string).toUpperCase();
 
-        // Save to context + localStorage (both keys)
+        // Save to context + localStorage
         login({
           id: data.user.employeeId,
           name: data.user.name,
           role,
           department: data.user.department || 'General',
+        }, data.token);
+
+        // Set the JWT cookie via Next.js API route (same domain = no cross-site issues)
+        await fetch('/api/auth/set-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: data.token }),
         });
-
-        // Wait for localStorage to actually write before navigating
-        await new Promise(resolve => setTimeout(resolve, 150));
-
-        // Verify localStorage saved correctly before redirecting
-        const saved = localStorage.getItem('user_session');
-        if (!saved) {
-          setError('SESSION SAVE FAILED. PLEASE TRY AGAIN.');
-          setIsLoading(false);
-          return;
-        }
 
         const routes: Record<string, string> = {
           ADMIN:    '/adminDashboard',
@@ -97,7 +92,6 @@ export const LoginForm = () => {
           EMPLOYEE: '/Dashboard',
         };
 
-        // Full page navigation so middleware re-runs with the JWT cookie
         window.location.href = routes[role] || '/';
 
       } else {
