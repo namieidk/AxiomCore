@@ -6,7 +6,6 @@ import { AdminSidebar } from '../../../components/(Admin)/Sidebar';
 import { useAutoLogout } from '../../../hooks/useAutoLogout';
 import { 
   Settings as SettingsIcon, 
-  ShieldCheck, 
   Bell, 
   Database, 
   Lock, 
@@ -29,8 +28,16 @@ export interface SystemSettings {
   storageUsage: number;
 }
 
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
+}
+
 export default function AdminSettingsPage() {
-    useAutoLogout();
+  useAutoLogout();
   const [loading, setLoading]   = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   
@@ -49,9 +56,8 @@ export default function AdminSettingsPage() {
     const fetchSettings = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/syssetting`, {
-          credentials: 'include',
+          headers: getAuthHeaders(),
         });
-        
         if (response.ok) {
           const data: SystemSettings = await response.json();
           setSettings(data);
@@ -59,16 +65,12 @@ export default function AdminSettingsPage() {
           window.location.href = '/login';
         } else {
           const errorData = await response.json().catch(() => ({}));
-          console.error('Kernel Error:', errorData.details || 'Unknown Error');
           toast.error('KERNEL SYNC FAILURE', {
             description: errorData.message || 'Could not retrieve settings from database.',
           });
         }
       } catch (error) {
-        console.error('Connection Refused:', error);
-        toast.error('CONNECTION OFFLINE', {
-          description: 'Ensure the backend server is active.',
-        });
+        toast.error('CONNECTION OFFLINE', { description: 'Ensure the backend server is active.' });
       } finally {
         setLoading(false);
       }
@@ -80,12 +82,10 @@ export default function AdminSettingsPage() {
     setIsSaving(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/syssetting`, {
-        method:      'PUT',
-        credentials: 'include',
-        headers:     { 'Content-Type': 'application/json' },
-        body:        JSON.stringify(settings),
+        method:  'PUT',
+        headers: getAuthHeaders(),
+        body:    JSON.stringify(settings),
       });
-
       if (response.ok) {
         toast.success('CONFIGURATION DEPLOYED', { description: 'Kernel parameters updated.' });
       } else if (response.status === 401 || response.status === 403) {
@@ -120,8 +120,6 @@ export default function AdminSettingsPage() {
       <AdminSidebar />
       
       <section className="flex-1 flex flex-col overflow-y-auto bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#020617] to-[#020617] scrollbar-hide pb-24 lg:pb-0">
-        
-        {/* HEADER: Responsive layout */}
         <header className="px-6 lg:px-12 py-6 lg:py-10 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 backdrop-blur-md sticky top-0 z-20 bg-[#020617]/90">
           <div>
             <div className="flex items-center gap-2 text-indigo-500 mb-2">
@@ -132,7 +130,6 @@ export default function AdminSettingsPage() {
               System <span className="text-indigo-600">Settings</span>
             </h1>
           </div>
-
           <button
             onClick={handleSave}
             disabled={isSaving}
@@ -144,14 +141,11 @@ export default function AdminSettingsPage() {
         </header>
 
         <div className="p-6 lg:p-12 max-w-[1400px] w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
-          
           <div className="lg:col-span-2 space-y-8 lg:space-y-10">
-            {/* SECURITY */}
             <div className="bg-slate-900/40 border border-white/5 rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-10 space-y-6 lg:space-y-8 backdrop-blur-3xl shadow-2xl">
               <h3 className="text-[10px] lg:text-xs text-indigo-500 tracking-[0.4em] flex items-center gap-3 uppercase">
                 <Lock className="w-4 h-4" /> Security Matrix
               </h3>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
                 <div className="space-y-3">
                   <label className="text-[7px] lg:text-[8px] text-slate-500 tracking-widest ml-2 uppercase">SESSION TIMEOUT (MIN)</label>
@@ -172,7 +166,6 @@ export default function AdminSettingsPage() {
                   />
                 </div>
               </div>
-
               <div
                 onClick={() => toggleSetting('mfaRequired')}
                 className="flex items-center justify-between p-5 lg:p-6 bg-indigo-600/5 border border-indigo-600/20 rounded-xl lg:rounded-2xl cursor-pointer hover:bg-indigo-600/10 transition-all"
@@ -190,12 +183,10 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            {/* MAINTENANCE */}
             <div className="bg-slate-900/40 border border-white/5 rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-10 space-y-6 lg:space-y-8 backdrop-blur-3xl">
               <h3 className="text-[10px] lg:text-xs text-indigo-500 tracking-[0.4em] flex items-center gap-3 uppercase">
                 <Database className="w-4 h-4" /> Cluster Management
               </h3>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 <button className="flex flex-col items-start gap-4 p-6 lg:p-8 bg-white/5 border border-white/5 rounded-[1.5rem] lg:rounded-[2rem] hover:bg-white/10 transition-all text-left">
                   <RefreshCw className="w-5 h-5 lg:w-6 h-6 text-indigo-400" />
@@ -216,7 +207,6 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="space-y-8 lg:space-y-10">
-            {/* INFRASTRUCTURE */}
             <div className="bg-slate-900/40 border border-white/5 rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-10 space-y-6">
               <h3 className="text-[9px] lg:text-[10px] text-slate-500 tracking-[0.4em] uppercase">Hardware Status</h3>
               <div className="space-y-6">
@@ -233,7 +223,6 @@ export default function AdminSettingsPage() {
               </div>
             </div>
 
-            {/* ALERTS */}
             <div className="bg-slate-900/40 border border-white/5 rounded-[2rem] lg:rounded-[3rem] p-6 lg:p-10 space-y-6">
               <h3 className="text-[9px] lg:text-[10px] text-slate-500 tracking-[0.4em] flex items-center gap-2 uppercase font-black">
                 <Bell className="w-3 h-3 text-indigo-500" /> Global Alerts

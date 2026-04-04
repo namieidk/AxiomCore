@@ -18,10 +18,18 @@ export interface ProvisionFormData {
   password: string;
 }
 
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
+}
+
 export default function ManageAccountsPage() {
-  const [view, setView]               = useState<'list' | 'create' | 'edit'>('list');
-  const [accounts, setAccounts]       = useState<UserAccount[]>([]);
-  const [loading, setLoading]         = useState(true);
+  const [view, setView]                 = useState<'list' | 'create' | 'edit'>('list');
+  const [accounts, setAccounts]         = useState<UserAccount[]>([]);
+  const [loading, setLoading]           = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [roleFilter, setRoleFilter]     = useState<string>('ALL');
@@ -41,7 +49,7 @@ export default function ManageAccountsPage() {
   const fetchAccounts = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/accounts`, {
-        credentials: 'include',
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         const data = await response.json();
@@ -86,8 +94,8 @@ export default function ManageAccountsPage() {
   const handleReactivate = async (id: number) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/reactivate-account/${id}`, {
-        method:      'PUT',
-        credentials: 'include',
+        method:  'PUT',
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         toast.success('IDENTITY RESTORED');
@@ -105,8 +113,8 @@ export default function ManageAccountsPage() {
     setIsSubmitting(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/revoke-account/${targetRevokeId}`, {
-        method:      'PUT',
-        credentials: 'include',
+        method:  'PUT',
+        headers: getAuthHeaders(),
       });
       if (response.ok) {
         setShowRevokeModal(false);
@@ -126,10 +134,9 @@ export default function ManageAccountsPage() {
     setIsSubmitting(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/provision`, {
-        method:      'POST',
-        credentials: 'include',
-        headers:     { 'Content-Type': 'application/json' },
-        body:        JSON.stringify(formData),
+        method:  'POST',
+        headers: getAuthHeaders(),
+        body:    JSON.stringify(formData),
       });
       if (response.ok) {
         toast.success('PROVISION SUCCESSFUL');
@@ -148,10 +155,9 @@ export default function ManageAccountsPage() {
     setIsSubmitting(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/admin/update-account/${formData.id}`, {
-        method:      'PUT',
-        credentials: 'include',
-        headers:     { 'Content-Type': 'application/json' },
-        body:        JSON.stringify(formData),
+        method:  'PUT',
+        headers: getAuthHeaders(),
+        body:    JSON.stringify(formData),
       });
       if (response.ok) {
         toast.success('IDENTITY UPDATED');

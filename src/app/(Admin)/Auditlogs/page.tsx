@@ -24,8 +24,16 @@ const MODULE_COLORS: Record<string, string> = {
 
 const PAGE_LIMIT = 50;
 
+function getAuthHeaders(): HeadersInit {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+  };
+}
+
 async function apiFetch(url: string): Promise<Response> {
-  return fetch(url, { credentials: 'include' });
+  return fetch(url, { headers: getAuthHeaders() });
 }
 
 export default function AuditLogsPage() {
@@ -46,7 +54,6 @@ export default function AuditLogsPage() {
       const res = await apiFetch(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Admin/activity-logs?page=${page}&limit=${PAGE_LIMIT}${modParam}`
       );
-
       if (res.ok) {
         const data = await res.json();
         setActivityLogs(data.logs  ?? []);
@@ -66,7 +73,6 @@ export default function AuditLogsPage() {
     if (!silent) setLoading(true);
     try {
       const res = await apiFetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Admin/login-logs`);
-
       if (res.ok) {
         const data = await res.json();
         setLoginLogs(Array.isArray(data) ? data : []);
@@ -96,9 +102,7 @@ export default function AuditLogsPage() {
   return (
     <main className="h-screen w-full flex flex-col lg:flex-row bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase relative">
       <AdminSidebar />
-
       <section className="flex-1 flex flex-col overflow-hidden bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617]">
-
         <header className="px-6 lg:px-12 py-6 lg:py-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 backdrop-blur-md bg-[#020617]/80 shrink-0">
           <div>
             <div className="flex items-center gap-2 text-indigo-500 mb-2">
@@ -109,7 +113,6 @@ export default function AuditLogsPage() {
               System <span className="text-indigo-600">Logs</span>
             </h1>
           </div>
-
           <div className="flex items-center gap-4 w-full md:w-auto">
             <button
               onClick={() => mode === 'activities' ? fetchActivityLogs(false) : fetchLoginLogs(false)}
@@ -117,7 +120,6 @@ export default function AuditLogsPage() {
             >
               <RefreshCw className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-colors" />
             </button>
-
             <div className="flex flex-1 md:flex-none bg-white/5 p-1.5 rounded-2xl border border-white/5 gap-2">
               <button
                 onClick={() => { setMode('activities'); setPage(1); }}
