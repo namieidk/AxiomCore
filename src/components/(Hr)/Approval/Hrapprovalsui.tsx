@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { HRSidebar } from '../Dashboard/sidebar';
 import {
   CheckCircle2,
   XCircle,
@@ -46,7 +45,7 @@ export const HRApprovalsUI = ({ requests, onAction, loading = false }: HRApprova
 
   return (
     <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase italic font-black">
-      <HRSidebar />
+    
 
       <section className="flex-1 flex flex-col overflow-y-auto bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617] scrollbar-hide">
         
