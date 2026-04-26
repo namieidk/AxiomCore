@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LeaveRequestForm } from '../../../components/(Employee)/LeaveReq/LeaveRequestForm';
 import { Sidebar } from '@/src/components/(Employee)/Dashboard/Sidebar';
 import { SessionGuard } from '@/src/components/SessionGuard';
 import { Calendar, Clock, LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAutoLogout } from '../../../hooks/useAutoLogout';
+
 interface LeaveHistoryItem {
   type: string;
   date: string;
@@ -29,6 +30,7 @@ export default function LeaveReqPage() {
   const [history, setHistory]             = useState<LeaveHistoryItem[]>([]);
   const [requestedDays, setRequestedDays] = useState<number>(0);
   const [dates, setDates]                 = useState({ start: '', end: '' });
+  const [leaveType, setLeaveType]         = useState<string>('SICK LEAVE');
 
   const getEmployeeId = useCallback((): number | null => {
     try {
@@ -83,38 +85,57 @@ export default function LeaveReqPage() {
   useEffect(() => {
     const id = getEmployeeId();
     if (!id) return;
-
     const load = async () => {
       await fetchCredits(id);
       await fetchHistory(id);
     };
-
     load();
   }, [getEmployeeId, fetchCredits, fetchHistory]);
+
+  const handleLeaveTypeChange = (type: string) => {
+    setLeaveType(type);
+    setDates({ start: '', end: '' });
+    setRequestedDays(0);
+  };
 
   const handleDateChange = (type: 'start' | 'end', value: string) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (new Date(value) < today) {
+    const isEmergency = leaveType === 'EMERGENCY LEAVE';
+
+    if (!isEmergency && new Date(value) < today) {
       toast.error('INVALID DATE: PAST DATES RESTRICTED');
       return;
     }
+
     const updated = { ...dates, [type]: value };
     setDates(updated);
+
     if (updated.start && updated.end) {
       const diff =
         Math.ceil(
           (new Date(updated.end).getTime() - new Date(updated.start).getTime()) /
-          (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24)
         ) + 1;
-      setRequestedDays(diff > 0 ? diff : 0);
+
+      const days = diff > 0 ? diff : 0;
+
+      if (isEmergency && days > 3) {
+        toast.error('EMERGENCY LEAVE IS LIMITED TO A MAXIMUM OF 3 DAYS');
+        setDates({ ...updated, end: '' });
+        setRequestedDays(0);
+        return;
+      }
+
+      setRequestedDays(days);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const employeeId = getEmployeeId();
-    const formData   = new FormData(e.currentTarget);
+    const employeeId  = getEmployeeId();
+    const formData    = new FormData(e.currentTarget);
+    const isEmergency = leaveType === 'EMERGENCY LEAVE';
 
     if (!employeeId) {
       toast.error('SESSION EXPIRED — PLEASE LOG IN AGAIN');
@@ -122,6 +143,10 @@ export default function LeaveReqPage() {
     }
     if (requestedDays <= 0) {
       toast.error('PLEASE SELECT VALID DATES');
+      return;
+    }
+    if (isEmergency && requestedDays > 3) {
+      toast.error('EMERGENCY LEAVE IS LIMITED TO A MAXIMUM OF 3 DAYS');
       return;
     }
 
@@ -148,9 +173,10 @@ export default function LeaveReqPage() {
     toast.promise(promise, {
       loading: 'TRANSMITTING REQUEST...',
       success: () => {
+        (e.target as HTMLFormElement).reset();
         setDates({ start: '', end: '' });
         setRequestedDays(0);
-        (e.target as HTMLFormElement).reset();
+        setLeaveType('SICK LEAVE');
         fetchCredits(employeeId);
         fetchHistory(employeeId);
         return 'REQUEST TRANSMITTED SUCCESSFULLY';
@@ -168,6 +194,8 @@ export default function LeaveReqPage() {
           history={history}
           requestedDays={requestedDays}
           dates={dates}
+          leaveType={leaveType}
+          onLeaveTypeChange={handleLeaveTypeChange}
           onDateChange={handleDateChange}
           onSubmit={handleSubmit}
         />
