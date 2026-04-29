@@ -19,11 +19,7 @@ export default function AdminMessagePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Mobile navigation state
   const [showChatMobile, setShowChatMobile] = useState(false);
-
-  // FIXED: Removed the useEffect that was causing the cascading render error.
-  // Instead, we handle the state transition directly in the click handler below.
 
   const formatTime = (isoString: string) => {
     return new Date(isoString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -47,10 +43,7 @@ export default function AdminMessagePage() {
           w-full lg:w-80 border-r border-white/5 flex-col bg-slate-950/20 z-20
         `}>
           <div className="p-6 lg:p-8 pb-4">
-            <div className="flex items-center gap-2 mb-6 text-indigo-500">
-                <Zap className="w-4 h-4" fill="currentColor" />
-                <h2 className="text-[10px] font-black uppercase tracking-[0.4em]">Direct Override</h2>
-            </div>
+          
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
               <input 
@@ -67,7 +60,6 @@ export default function AdminMessagePage() {
               <button 
                 key={chat.employeeId} 
                 onClick={() => {
-                  // UPDATE BOTH STATES HERE: This prevents the cascading render error
                   setActiveChat(chat);
                   setShowChatMobile(true);
                 }}

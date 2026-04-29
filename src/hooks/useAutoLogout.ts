@@ -3,7 +3,7 @@
 import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const TIMEOUT_MS = 30 * 60 * 1000; 
 
 export const useAutoLogout = () => {
   const router = useRouter();
@@ -21,7 +21,6 @@ export const useAutoLogout = () => {
     localStorage.removeItem('user_name');
     localStorage.removeItem('user_session');
 
-    // 3. Redirect to login
     router.push('/login');
   }, [router]);
 

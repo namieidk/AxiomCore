@@ -27,6 +27,8 @@ interface Props {
   onNext: () => void;
 }
 
+export const ACTIVITY_PAGE_SIZE = 10;
+
 function toPHT(utcString: string): string {
   try {
     const date = new Date(utcString.replace(' ', 'T') + 'Z');
@@ -70,7 +72,10 @@ function ActionIcon({ action }: { action: string }) {
 }
 
 export const ActivityLogTable = ({ logs, page, totalPages, total, onPrev, onNext }: Props) => {
-  if (logs.length === 0) return (
+  // Enforce 10-row limit on the displayed slice
+  const displayedLogs = logs.slice(0, ACTIVITY_PAGE_SIZE);
+
+  if (displayedLogs.length === 0) return (
     <div className="flex flex-col items-center justify-center py-20 opacity-40">
       <FileText className="w-10 h-10 text-indigo-500 mb-4" />
       <p className="text-[10px] font-black tracking-[0.4em]">NO ACTIVITY RECORDED</p>
@@ -78,29 +83,37 @@ export const ActivityLogTable = ({ logs, page, totalPages, total, onPrev, onNext
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-0">
       <div className="bg-slate-900/40 border border-white/5 rounded-2xl lg:rounded-[3rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
+
+        {/* Scrollable table */}
         <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse min-w-[900px]">
-            <thead className="bg-white/5 text-[9px] lg:text-[10px] font-black text-slate-500 tracking-[0.3em] uppercase border-b border-white/5">
-              <tr>
-                <th className="px-10 py-6 text-indigo-500/50">TIMESTAMP (PHT)</th>
-                <th className="px-6 py-6 text-indigo-500/50">ACTOR</th>
-                <th className="px-6 py-6 text-indigo-500/50">MODULE</th>
-                <th className="px-6 py-6 text-indigo-500/50">ACTION</th>
-                <th className="px-10 py-6 text-right text-indigo-500/50">TARGET</th>
+            <thead>
+              <tr className="bg-white/5 border-b border-white/5 text-[9px] lg:text-[10px] text-slate-500 tracking-[0.3em]">
+                <th className="px-10 py-6 text-indigo-500/50 uppercase">Timestamp (PHT)</th>
+                <th className="px-6 py-6 text-indigo-500/50 uppercase">Actor</th>
+                <th className="px-6 py-6 text-center text-indigo-500/50 uppercase">Module</th>
+                <th className="px-6 py-6 text-indigo-500/50 uppercase">Action</th>
+                <th className="px-10 py-6 text-right text-indigo-500/50 uppercase">Target</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {logs.map((log) => (
+              {displayedLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-indigo-600/5 transition-colors group">
-                  <td className="px-10 py-5 text-[9px] lg:text-[10px] font-black text-slate-500 font-mono">{toPHT(log.timestamp)}</td>
-                  <td className="px-6 py-5">
-                    <p className="text-[11px] font-black text-white uppercase truncate max-w-[150px]">{log.user}</p>
-                    <p className="text-[7px] font-bold text-slate-600 tracking-widest uppercase">{log.role} • {log.dept}</p>
+                  <td className="px-10 py-5 text-[9px] lg:text-[10px] font-black text-slate-500 font-mono whitespace-nowrap">
+                    {toPHT(log.timestamp)}
                   </td>
                   <td className="px-6 py-5">
-                    <span className={`text-[8px] font-black tracking-widest px-3 py-1 rounded-full border uppercase ${moduleColor(log.module)}`}>
+                    <p className="text-[11px] font-black text-white group-hover:text-indigo-400 transition-colors uppercase truncate max-w-[150px]">
+                      {log.user}
+                    </p>
+                    <p className="text-[7px] font-bold text-slate-600 tracking-widest uppercase">
+                      {log.role} • {log.dept}
+                    </p>
+                  </td>
+                  <td className="px-6 py-5 text-center">
+                    <span className={`text-[8px] font-black tracking-widest px-3 py-1 rounded-full border uppercase inline-block min-w-[80px] ${moduleColor(log.module)}`}>
                       {log.module}
                     </span>
                   </td>
@@ -122,16 +135,32 @@ export const ActivityLogTable = ({ logs, page, totalPages, total, onPrev, onNext
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
-        <button onClick={onPrev} disabled={page === 1} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black tracking-widest text-slate-500 hover:text-white disabled:opacity-30 transition-all">
-          <ChevronLeft className="w-3 h-3" /> PREV
-        </button>
-        <span className="text-[9px] font-black text-slate-700 tracking-[0.2em] uppercase">PAGE {page} OF {totalPages}</span>
-        <button onClick={onNext} disabled={page === totalPages} className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/5 text-[9px] font-black tracking-widest text-slate-500 hover:text-white disabled:opacity-30 transition-all">
-          NEXT <ChevronRight className="w-3 h-3" />
-        </button>
+        {/* Pagination footer — matches AccountList style exactly */}
+        <footer className="px-6 lg:px-10 py-6 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 italic">
+          <p className="text-[9px] text-slate-500 tracking-widest uppercase">
+            SHOWING <span className="text-indigo-400">{total}</span> RECORDS
+          </p>
+          <div className="flex items-center gap-6">
+            <button
+              disabled={page === 1}
+              onClick={onPrev}
+              className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-[9px] lg:text-[10px] text-white tracking-widest uppercase">
+              PAGE {page} / {totalPages || 1}
+            </span>
+            <button
+              disabled={page === totalPages || totalPages === 0}
+              onClick={onNext}
+              className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </footer>
       </div>
     </div>
   );

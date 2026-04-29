@@ -28,10 +28,10 @@ export interface PayslipData {
 const API_BASE = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Payroll`;
 
 export default function PayrollPage() {
-  useAutoLogout
-  const [history, setHistory] = useState<PayslipData[]>([]);
+  useAutoLogout();
+  const [history, setHistory]       = useState<PayslipData[]>([]);
   const [activeSlip, setActiveSlip] = useState<PayslipData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]       = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -44,24 +44,33 @@ export default function PayrollPage() {
       try {
         const res = await fetch(`${API_BASE}/payslips?employeeId=${user.employeeId}`);
         if (res.ok) {
-          const data = await res.json();
+          const data: PayslipData[] = await res.json();
           setHistory(data);
           if (data.length > 0) setActiveSlip(data[0]);
         }
       } catch (e) {
-        console.error("API Error:", e);
+        console.error('API Error:', e);
       } finally {
         setLoading(false);
       }
     };
+
     fetchPayslips();
   }, []);
 
   const totalPages = Math.ceil(history.length / itemsPerPage) || 1;
+
   const visibleHistory = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
     return history.slice(start, start + itemsPerPage);
   }, [history, currentPage]);
+
+  // Determine if this payslip is a 1st or 2nd payroll based on period start day
+  const isFirstPayroll = useMemo(() => {
+    if (!activeSlip) return null;
+    const day = new Date(activeSlip.periodStart).getDate();
+    return day <= 15;
+  }, [activeSlip]);
 
   if (loading) return <LoadingSpinner />;
 
@@ -71,6 +80,7 @@ export default function PayrollPage() {
       visibleHistory={visibleHistory}
       currentPage={currentPage}
       totalPages={totalPages}
+      isFirstPayroll={isFirstPayroll}
       onPageChange={setCurrentPage}
       onSelectSlip={setActiveSlip}
     />

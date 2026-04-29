@@ -49,24 +49,34 @@ export default function AdminDashboardPage() {
           <div className="p-6 lg:p-12 max-w-[1600px] w-full mx-auto space-y-6 lg:space-y-10">
             
             {/* SYSTEM HEALTH METRICS: 2 columns on mobile, 4 on desktop */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
-              {[
-                { label: 'CPU LOAD',        val: '12%',   icon: Cpu,      color: 'text-indigo-400' },
-                { label: 'MEM USAGE',       val: '4.2GB', icon: Database, color: 'text-white' },
-                { label: 'ACTIVE SESSIONS', val: '842',   icon: Globe,    color: 'text-indigo-400' },
-                { label: 'SECURITY ALERTS', val: '0',     icon: Lock,     color: 'text-emerald-500' },
-              ].map((stat, i) => (
-                <div key={i} className="bg-slate-900/40 border border-white/5 p-5 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] backdrop-blur-3xl flex flex-col justify-between group hover:border-indigo-500/30 transition-all">
-                  <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-white/5 flex items-center justify-center mb-4 lg:mb-6">
-                    <stat.icon className={`w-5 h-5 lg:w-6 h-6 ${stat.color}`} />
-                  </div>
-                  <div>
-                    <p className="text-[7px] lg:text-[9px] font-black text-slate-500 tracking-widest mb-1">{stat.label}</p>
-                    <p className="text-xl lg:text-3xl font-black text-white tracking-tighter">{stat.val}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+  {[
+    { label: 'CPU LOAD',        val: '12%',   icon: Cpu,      color: 'text-indigo-400' },
+    { label: 'MEM USAGE',       val: '4.2GB', icon: Database, color: 'text-white' },
+    { label: 'ACTIVE SESSIONS', val: '842',   icon: Globe,    color: 'text-indigo-400' },
+    { label: 'SECURITY ALERTS', val: '0',     icon: Lock,     color: 'text-emerald-500' },
+  ].map((stat, i) => (
+    <div key={i} className="bg-slate-900/40 border border-white/5 p-5 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] backdrop-blur-3xl flex flex-col justify-between group hover:border-indigo-500/30 transition-all">
+      {/* Icon Section */}
+      <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl lg:rounded-2xl bg-white/5 flex items-center justify-center mb-4 lg:mb-6">
+        <stat.icon className={`w-5 h-5 lg:w-6 h-6 ${stat.color}`} />
+      </div>
+
+      {/* Stats Section: Label on left, Value on right */}
+      <div className="flex justify-between items-end gap-2">
+        <div className="flex flex-col">
+          <p className="text-[7px] lg:text-[9px] font-black text-slate-500 tracking-widest uppercase">
+            {stat.label}
+          </p>
+        </div>
+        
+        <p className="text-xl lg:text-3xl font-black text-white tracking-tighter leading-none">
+          {stat.val}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
               

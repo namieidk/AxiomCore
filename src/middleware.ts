@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-// ─── Role → allowed route prefixes (MATCHING YOUR FOLDERS) ───────────────────
 const ROLE_ROUTES: Record<string, string[]> = {
   Applicants: ['/welcome', '/apply'],
   ADMIN: [

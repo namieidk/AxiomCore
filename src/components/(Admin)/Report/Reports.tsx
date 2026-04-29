@@ -104,19 +104,33 @@ export const AdminReportsUI = ({
           
           {/* INTEGRITY CARDS: 1 col mobile, 3 col desktop */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-6">
-            {[
-              { label: 'TOTAL ACCOUNTS', val: statsLoading ? '—' : stats?.totalAccounts, icon: Users },
-              { label: 'DATA BREACHES', val: '0', icon: Lock },
-              { label: 'STORAGE USED', val: statsLoading ? '—' : stats?.storageUsedGB, icon: HardDrive }
-            ].map((card, i) => (
-              <div key={i} className="bg-slate-900/40 border border-white/5 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] relative group overflow-hidden transition-all hover:border-indigo-500/30">
-                <div className="absolute top-0 left-0 w-1 h-full bg-indigo-600 opacity-0 group-hover:opacity-100 transition-all" />
-                <card.icon className="w-4 h-4 lg:w-5 h-5 text-indigo-400 mb-4 lg:mb-6" />
-                <p className="text-[8px] lg:text-[9px] font-black text-slate-500 tracking-widest mb-1 uppercase">{card.label}</p>
-                <p className="text-xl lg:text-3xl font-black text-white tracking-tighter leading-none">{card.val}</p>
-              </div>
-            ))}
-          </div>
+  {[
+    { label: 'TOTAL ACCOUNTS', val: statsLoading ? '—' : stats?.totalAccounts, icon: Users },
+    { label: 'DATA BREACHES', val: '0', icon: Lock },
+    { label: 'STORAGE USED', val: statsLoading ? '—' : stats?.storageUsedGB, icon: HardDrive }
+  ].map((card, i) => (
+    <div key={i} className="bg-slate-900/40 border border-white/5 p-6 lg:p-8 rounded-[2rem] lg:rounded-[2.5rem] relative group overflow-hidden transition-all hover:border-indigo-500/30">
+      {/* Decorative hover accent */}
+      <div className="absolute top-0 left-0 w-1 h-full bg-indigo-600 opacity-0 group-hover:opacity-100 transition-all" />
+      
+      {/* Icon remains at the top */}
+      <card.icon className="w-4 h-4 lg:w-5 h-5 text-indigo-400 mb-4 lg:mb-6" />
+      
+      {/* Flex container to push value to the right */}
+      <div className="flex justify-between items-end gap-4">
+        <div className="flex flex-col">
+          <p className="text-[8px] lg:text-[9px] font-black text-slate-500 tracking-widest mb-1 uppercase">
+            {card.label}
+          </p>
+        </div>
+        
+        <p className="text-xl lg:text-3xl font-black text-white tracking-tighter leading-none">
+          {card.val}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
             {/* EXPORT CENTER: 1 col on mobile, 2 col at md */}
