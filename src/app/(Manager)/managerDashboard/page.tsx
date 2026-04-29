@@ -9,6 +9,7 @@ import {
   AlertCircle,
   TrendingUp,
   ChevronRight,
+  ChevronLeft,
   Activity
 } from 'lucide-react';
 
@@ -30,8 +31,10 @@ interface ManagerStats {
 export default function ManagerDashboard() {
   useAutoLogout();
 
-  const [stats, setStats]     = useState<ManagerStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats]         = useState<ManagerStats | null>(null);
+  const [loading, setLoading]     = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -54,6 +57,13 @@ export default function ManagerDashboard() {
 
     fetchStats();
   }, []);
+
+  const approvals = stats?.pendingApprovals ?? [];
+  const totalPages = Math.ceil(approvals.length / itemsPerPage) || 1;
+  const paginatedApprovals = approvals.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const kpiCards = [
     {
@@ -95,8 +105,10 @@ export default function ManagerDashboard() {
               <div key={i} className="bg-slate-900/40 border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] relative overflow-hidden group hover:border-indigo-500/20 transition-all shadow-2xl shadow-black/20">
                 <s.icon className={`absolute top-6 right-8 w-10 h-10 md:w-12 md:h-12 ${s.color} opacity-10 group-hover:scale-125 transition-transform duration-500`} />
                 <p className="text-[8px] md:text-[10px] font-black text-slate-500 tracking-[0.3em] mb-2 uppercase">{s.label}</p>
-                <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic">{s.val}</h2>
-                <p className={`text-[8px] md:text-[9px] font-black ${s.color} mt-4 tracking-widest uppercase`}>{s.sub}</p>
+                <div className="flex items-end justify-between mt-2">
+                  <p className={`text-[8px] md:text-[9px] font-black ${s.color} tracking-widest uppercase`}>{s.sub}</p>
+                  <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter italic">{s.val}</h2>
+                </div>
               </div>
             ))}
           </div>
@@ -106,19 +118,23 @@ export default function ManagerDashboard() {
             {/* LEFT: PENDING APPROVALS LIST */}
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-slate-900/20 border border-white/5 rounded-[2rem] md:rounded-[3rem] overflow-hidden backdrop-blur-sm">
+
+                {/* Table Header */}
                 <div className="px-6 md:px-10 py-6 md:py-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                   <h3 className="text-[10px] md:text-xs font-black text-white tracking-[0.3em] uppercase italic">Urgent Approvals</h3>
                   <span className="px-3 md:px-4 py-1 bg-orange-500/10 text-orange-400 text-[8px] md:text-[9px] font-black rounded-full border border-orange-500/20 uppercase">
                     {loading ? '...' : `${stats?.pendingLeaves ?? 0} PENDING`}
                   </span>
                 </div>
+
+                {/* Rows */}
                 <div className="divide-y divide-white/5">
                   {loading ? (
                     <div className="px-10 py-8 text-center text-[9px] font-black text-slate-600 tracking-widest uppercase italic">
                       Loading...
                     </div>
-                  ) : stats?.pendingApprovals?.length ? (
-                    stats.pendingApprovals.map((req, i) => (
+                  ) : paginatedApprovals.length ? (
+                    paginatedApprovals.map((req, i) => (
                       <div key={i} className="px-6 md:px-10 py-5 md:py-6 flex justify-between items-center hover:bg-white/5 transition-all group">
                         <div className="flex gap-3 md:gap-4 items-center min-w-0">
                           <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-800 flex items-center justify-center font-black text-slate-500 text-[10px] border border-white/5 group-hover:border-indigo-500/30 transition-all shrink-0">
@@ -140,6 +156,33 @@ export default function ManagerDashboard() {
                     </div>
                   )}
                 </div>
+
+                {/* Pagination Footer */}
+                <footer className="px-6 lg:px-10 py-6 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 italic">
+                  <p className="text-[9px] text-slate-500 tracking-widest uppercase">
+                    SHOWING <span className="text-indigo-400">{approvals.length}</span> RECORDS
+                  </p>
+                  <div className="flex items-center gap-6">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5 active:scale-95"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-[9px] lg:text-[10px] text-white tracking-widest uppercase">
+                      PAGE {currentPage} / {totalPages}
+                    </span>
+                    <button
+                      disabled={currentPage === totalPages || totalPages === 0}
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5 active:scale-95"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </footer>
+
               </div>
             </div>
 
@@ -159,8 +202,8 @@ export default function ManagerDashboard() {
               <div className="bg-slate-900/40 border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] space-y-4 md:space-y-6">
                 <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-2">Resource Status</h3>
                 {[
-                  { label: 'Workstations', val: '98%',   color: 'bg-emerald-500' },
-                  { label: 'Network Load', val: '42%',   color: 'bg-indigo-500'  },
+                  { label: 'Workstations', val: '98%',    color: 'bg-emerald-500' },
+                  { label: 'Network Load', val: '42%',    color: 'bg-indigo-500'  },
                   { label: 'AVAYA Status', val: 'ONLINE', color: 'bg-emerald-500' },
                 ].map((item, i) => (
                   <div key={i} className="flex justify-between items-center bg-white/[0.02] p-3 md:p-4 rounded-xl md:rounded-2xl border border-white/5">

@@ -141,15 +141,19 @@ export const HRReportsUI = ({
         </header>
 
         <div className="p-6 md:p-12 max-w-[1600px] w-full mx-auto space-y-8 md:space-y-12">
-          {/* Stat Cards */}
+          {/* Stat Cards Updated: Value moved to right side */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {statCards.map((stat, i) => (
               <div key={i} className="bg-slate-900/40 border border-white/5 p-6 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] backdrop-blur-3xl group hover:border-indigo-500/30 transition-all relative overflow-hidden">
                 <div className="flex justify-between items-start mb-4 md:mb-6">
                   <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
-                <p className="text-[8px] md:text-[9px] font-black text-slate-500 tracking-widest mb-1">{stat.label}</p>
-                <p className="text-2xl md:text-3xl font-black tracking-tighter text-white">{stat.val}</p>
+                <div className="flex justify-between items-end gap-4">
+                    <div>
+                        <p className="text-[8px] md:text-[9px] font-black text-slate-500 tracking-widest mb-1">{stat.label}</p>
+                    </div>
+                    <p className="text-2xl md:text-3xl font-black tracking-tighter text-white leading-none">{stat.val}</p>
+                </div>
               </div>
             ))}
           </div>

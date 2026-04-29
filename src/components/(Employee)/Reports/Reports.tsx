@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from '../../(Employee)/Dashboard/Sidebar';
 import {
   BarChart3, FileText, Download, Loader2,
   TrendingUp, ShieldCheck, Clock,
-  LucideIcon
+  LucideIcon, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import {
@@ -13,8 +13,6 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 import { Report, UserProfile } from '../../../app/(Employee)/Reports/page';
-
-// ─── PROPS ────────────────────────────────────────────────────────────────────
 
 interface ReportsViewProps {
   user:             UserProfile | null;
@@ -29,8 +27,6 @@ interface ReportsViewProps {
   onDownload:       (report: Report) => Promise<void>;
 }
 
-// ─── STAT CARD ────────────────────────────────────────────────────────────────
-
 function StatCard({ title, value, Icon, trend }: {
   title: string; value: string; Icon: LucideIcon; trend: string;
 }) {
@@ -38,15 +34,13 @@ function StatCard({ title, value, Icon, trend }: {
     <div className="bg-slate-900/40 border border-white/5 p-5 md:p-8 rounded-[2rem] md:rounded-[3rem] hover:bg-slate-900/60 transition-all border-b-4 border-b-transparent hover:border-b-indigo-500">
       <Icon className="text-indigo-500 mb-4" size={20} />
       <p className="text-[9px] text-slate-500 tracking-widest mb-1">{title}</p>
-      <div className="flex items-baseline gap-2">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[9px] text-slate-600 uppercase">{trend}</span>
         <span className="text-2xl md:text-3xl text-white tracking-tighter">{value}</span>
-        <span className="text-[7px] text-slate-600 uppercase">{trend}</span>
       </div>
     </div>
   );
 }
-
-// ─── STATUS BADGE ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: string }) {
   const s = status?.toUpperCase();
@@ -61,13 +55,24 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-// ─── MAIN VIEW ────────────────────────────────────────────────────────────────
-
 export default function ReportsView({
   user, reports, filteredReports, isLoading,
   filterType, setFilterType, allTypes,
   activeChart, setActiveChart, onDownload,
 }: ReportsViewProps) {
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(filteredReports.length / itemsPerPage) || 1;
+  const indexOfFirst = (currentPage - 1) * itemsPerPage;
+  const indexOfLast = indexOfFirst + itemsPerPage;
+  const paginatedReports = filteredReports.slice(indexOfFirst, indexOfLast);
+
+  // Reset to page 1 when filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filterType]);
 
   if (isLoading) return (
     <div className="h-screen w-full bg-[#020617] flex flex-col items-center justify-center italic font-black text-indigo-500 tracking-[0.4em]">
@@ -92,13 +97,11 @@ export default function ReportsView({
   return (
     <main className="h-screen w-full flex bg-[#020617] text-slate-200 overflow-hidden font-sans uppercase italic font-black">
       <Toaster position="top-right" richColors theme="dark" />
-      
-      {/* Sidebar hidden on mobile can be managed by the Sidebar component internally */}
       <Sidebar />
 
       <section className="flex-1 flex flex-col overflow-y-auto bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#020617] to-[#020617] scrollbar-hide">
 
-        {/* ── HEADER ── */}
+        {/* HEADER */}
         <header className="px-6 md:px-12 py-8 md:py-10 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-end backdrop-blur-xl sticky top-0 z-20 bg-[#020617]/80 gap-4 md:gap-0">
           <div>
             <div className="flex items-center gap-2 text-indigo-500 mb-2">
@@ -119,15 +122,15 @@ export default function ReportsView({
 
         <div className="p-6 md:p-12 max-w-[1600px] w-full mx-auto space-y-10">
 
-          {/* ── STAT CARDS ── */}
+          {/* STAT CARDS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard title="Total Reports" value={reports.length.toString()}                                                                Icon={FileText}    trend="total"    />
-            <StatCard title="Approved"      value={reports.filter(r => r.status?.toUpperCase() === 'APPROVED').length.toString()}            Icon={ShieldCheck} trend="verified" />
-            <StatCard title="Pending"       value={reports.filter(r => r.status?.toUpperCase() === 'PENDING').length.toString()}             Icon={Clock}       trend="queue"    />
-            <StatCard title="Viewed"        value={filteredReports.length.toString()}                                                        Icon={TrendingUp}  trend="active"   />
+            <StatCard title="Total Reports" value={reports.length.toString()}                                                             Icon={FileText}    trend="total"    />
+            <StatCard title="Approved"      value={reports.filter(r => r.status?.toUpperCase() === 'APPROVED').length.toString()}         Icon={ShieldCheck} trend="verified" />
+            <StatCard title="Pending"       value={reports.filter(r => r.status?.toUpperCase() === 'PENDING').length.toString()}          Icon={Clock}       trend="queue"    />
+            <StatCard title="Viewed"        value={filteredReports.length.toString()}                                                     Icon={TrendingUp}  trend="active"   />
           </div>
 
-          {/* ── CHARTS ── */}
+          {/* CHARTS */}
           <div className="bg-slate-900/20 border border-white/5 rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-8 backdrop-blur-3xl shadow-2xl">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 px-4 gap-4 sm:gap-0">
               <h3 className="text-xs tracking-[0.3em]">Data Visualization</h3>
@@ -175,7 +178,7 @@ export default function ReportsView({
             </div>
           </div>
 
-          {/* ── REPORTS TABLE ── */}
+          {/* REPORTS TABLE */}
           <div className="bg-slate-900/20 border border-white/5 rounded-[2rem] md:rounded-[3.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
             <div className="px-6 md:px-10 py-7 border-b border-white/5 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 bg-white/[0.02]">
               <h3 className="text-xs tracking-[0.4em] text-white">Document Logs</h3>
@@ -210,7 +213,7 @@ export default function ReportsView({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
-                    {filteredReports.map((report) => (
+                    {paginatedReports.map((report) => (
                       <tr key={report.id} className="hover:bg-white/[0.03] transition-all group">
                         <td className="px-10 py-6 text-[9px] text-slate-500 font-mono tracking-widest not-italic">
                           {report.reportNumber}
@@ -256,6 +259,32 @@ export default function ReportsView({
                 </div>
               )}
             </div>
+
+            {/* PAGINATION FOOTER — matches AdminManageAcc */}
+            <footer className="px-6 lg:px-10 py-6 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 italic">
+              <p className="text-[9px] text-slate-500 tracking-widest uppercase">
+                SHOWING <span className="text-indigo-400">{filteredReports.length}</span> RECORDS
+              </p>
+              <div className="flex items-center gap-6">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5 active:scale-95"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-[9px] lg:text-[10px] text-white tracking-widest uppercase">
+                  PAGE {currentPage} / {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5 active:scale-95"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </footer>
           </div>
 
           <div className="h-10" />

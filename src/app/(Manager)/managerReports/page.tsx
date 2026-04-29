@@ -130,7 +130,6 @@ export default function ManagerReportsPage() {
     try {
       setActionId(requestId);
       const token = localStorage.getItem('token');
-      // Replaced localhost with env variable
       const res = await fetch(`${API_BASE_URL}/api/Leave/manager-action`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

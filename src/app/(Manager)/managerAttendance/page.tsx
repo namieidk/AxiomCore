@@ -22,7 +22,6 @@ interface LateNotification {
   time: string;
 }
 
-// Helper to get the base URL from env
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 export default function ManagerAttendancePage() {
@@ -33,7 +32,6 @@ export default function ManagerAttendancePage() {
   const [department, setDepartment] = useState<string>('');
   const [notifications, setNotifications] = useState<LateNotification[]>([]);
   
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
@@ -55,7 +53,6 @@ export default function ManagerAttendancePage() {
     if (!department) return;
     (async () => {
       try {
-        // Replaced localhost with env variable
         const response = await fetch(`${API_BASE_URL}/api/Attendance/department/${department}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data: AttendanceRecord[] = await response.json();
@@ -85,7 +82,6 @@ export default function ManagerAttendancePage() {
     onLateNotification: handleLateNotification,
   });
 
-  // Filter Logic
   const filteredData = useMemo(() => {
     return attendanceData.filter((agent) => {
       const matchesSearch =
@@ -104,12 +100,10 @@ export default function ManagerAttendancePage() {
     });
   }, [searchTerm, attendanceData, filters]);
 
-  // Reset page when filters or search change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filters]);
 
-  // Pagination Logic
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;

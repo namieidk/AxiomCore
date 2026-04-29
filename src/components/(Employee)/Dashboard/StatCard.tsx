@@ -45,45 +45,43 @@ export const StatCards = () => {
   ];
 
   return (
-    /* RESPONSIVE GRID: 
-       - 1 column on mobile 
-       - 2 columns on small tablets (sm)
-       - 4 columns on large screens (lg)
-    */
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-10">
       {statsConfig.map((stat) => (
-        <div 
-          key={stat.label} 
-          className="relative overflow-hidden bg-slate-900/30 border border-white/5 p-5 md:p-7 rounded-[2rem] md:rounded-[2.5rem] backdrop-blur-3xl hover:border-indigo-500/20 transition-all group uppercase italic font-black"
+        <div
+          key={stat.label}
+          className="relative overflow-hidden bg-slate-900/30 border border-white/5 p-4 md:p-5 rounded-[2rem] md:rounded-[2.5rem] backdrop-blur-3xl hover:border-indigo-500/20 transition-all group uppercase italic font-black"
         >
-          <div className="flex justify-between items-start mb-4">
-            <div className={`p-2.5 md:p-3 rounded-2xl ${stat.bg} border border-white/5`}>
-              <stat.icon className={`w-4 h-4 md:w-5 md:h-5 ${stat.color}`} />
+          {/* Top row: icon + live metric badge */}
+          <div className="flex justify-between items-start mb-3">
+            <div className={`p-2 md:p-2.5 rounded-2xl ${stat.bg} border border-white/5 shrink-0`}>
+              <stat.icon className={`w-3.5 h-3.5 md:w-4 md:h-4 ${stat.color}`} />
             </div>
-            <span className="text-[9px] md:text-[10px] text-slate-600 tracking-widest whitespace-nowrap">
+            <span className="text-[8px] md:text-[9px] text-slate-600 tracking-widest whitespace-nowrap ml-2">
               Live Metric
             </span>
           </div>
 
-          {loading ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="w-4 h-4 text-indigo-500 animate-spin" />
-              <span className="text-[10px] text-slate-700 tracking-tighter">Syncing...</span>
-            </div>
-          ) : (
-            /* Using truncate to prevent long values from breaking the layout on small screens */
-            <p className="text-2xl md:text-3xl text-white tracking-tighter group-hover:text-indigo-400 transition-colors truncate">
-              {stat.value || '0.0%'}
+          {/* Bottom row: label left, value right */}
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-[8px] md:text-[9px] tracking-[0.15em] text-slate-500 font-bold leading-tight shrink-0">
+              {stat.label}
             </p>
-          )}
-          
-          <p className="text-[9px] md:text-[10px] tracking-[0.2em] text-slate-500 mt-1 font-bold">
-            {stat.label}
-          </p>
 
-          {/* Subtle background decoration that appears on hover for that high-tech feel */}
+            {loading ? (
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Loader2 className="w-3 h-3 text-indigo-500 animate-spin" />
+                <span className="text-[9px] text-slate-700 tracking-tighter">Syncing...</span>
+              </div>
+            ) : (
+              <p className="text-lg md:text-xl lg:text-2xl text-white tracking-tighter group-hover:text-indigo-400 transition-colors min-w-0 text-right">
+                {stat.value || '0.0%'}
+              </p>
+            )}
+          </div>
+
+          {/* Hover decoration */}
           <div className="absolute -right-2 -bottom-2 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none">
-            <stat.icon size={80} />
+            <stat.icon size={70} />
           </div>
         </div>
       ))}

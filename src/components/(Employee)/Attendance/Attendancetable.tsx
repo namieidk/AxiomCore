@@ -28,11 +28,9 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // 1. FETCH DATA
   useEffect(() => {
     const loadData = async () => {
       const stored = localStorage.getItem('user');
@@ -42,7 +40,6 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/attendance/my-logs/${employeeId}`);
         if (!res.ok) throw new Error("Failed to fetch");
-        
         const data: Log[] = await res.json();
         setLogs(data);
       } catch (err) {
@@ -54,24 +51,19 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
     loadData();
   }, []);
 
-  // 2. FILTER LOGS BASED ON PROPS
   const filteredLogs = useMemo(() => {
     return logs.filter((log) => {
       const logDate = new Date(log.clockInTime).toISOString().split('T')[0];
-      
       if (startDate && logDate < startDate) return false;
       if (endDate && logDate > endDate) return false;
-      
       return true;
     });
   }, [logs, startDate, endDate]);
 
-  // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [startDate, endDate]);
 
-  // 3. CALCULATE METRICS
   const metrics = useMemo(() => {
     if (filteredLogs.length === 0) return { total: 0, lates: 0, score: 0 };
 
@@ -87,14 +79,9 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
       complianceScore = Math.min(100, (actualHours / targetHours) * 100);
     }
 
-    return { 
-      total: totalHrs, 
-      lates: lateCount, 
-      score: Math.round(complianceScore) 
-    };
+    return { total: totalHrs, lates: lateCount, score: Math.round(complianceScore) };
   }, [filteredLogs]);
 
-  // 4. PAGINATION CALCULATION
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredLogs.slice(indexOfFirstItem, indexOfLastItem);
@@ -104,7 +91,7 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
     return (
       <div className="p-20 text-center flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-        <p className="text-indigo-400 font-black uppercase tracking-[0.3em] text-shadow-glow text-xs">Syncing Encrypted Logs...</p>
+        <p className="text-indigo-400 font-black uppercase tracking-[0.3em] text-xs">Syncing Encrypted Logs...</p>
       </div>
     );
   }
@@ -112,29 +99,14 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
   return (
     <div className="space-y-8 animate-in fade-in duration-700 uppercase">
       
-      {/* METRICS CARDS - Responsive Grid */}
+      {/* METRICS CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <MetricBox 
-          label="Total Hours" 
-          val={metrics.total.toFixed(1)} 
-          unit="HRS" 
-          color="text-white" 
-        />
-        <MetricBox 
-          label="Late Instances" 
-          val={metrics.lates.toString().padStart(2, '0')} 
-          unit="SHIFTS" 
-          color="text-orange-400" 
-        />
-        <MetricBox 
-          label="Performance Score" 
-          val={`${metrics.score}%`} 
-          unit={metrics.score >= 90 ? "EXCELLENT" : "BELOW TARGET"} 
-          color={metrics.score < 85 ? "text-red-400" : "text-indigo-400"} 
-        />
+        <MetricBox label="Total Hours" val={metrics.total.toFixed(1)} unit="HRS" color="text-white" />
+        <MetricBox label="Late Instances" val={metrics.lates.toString().padStart(2, '0')} unit="SHIFTS" color="text-orange-400" />
+        <MetricBox label="Performance Score" val={`${metrics.score}%`} unit={metrics.score >= 90 ? "EXCELLENT" : "BELOW TARGET"} color={metrics.score < 85 ? "text-red-400" : "text-indigo-400"} />
       </div>
 
-      {/* LOGS TABLE - Horizontal Scroll for Mobile */}
+      {/* LOGS TABLE */}
       <div className="bg-indigo-950/20 border border-indigo-500/10 rounded-3xl lg:rounded-[2.5rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
         <div className="overflow-x-auto scrollbar-hide">
           <table className="w-full text-left border-collapse min-w-[800px]">
@@ -158,10 +130,10 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
                     <tr key={log.id} className="hover:bg-indigo-500/[0.03] transition-all group">
                       <td className="p-6 font-bold text-sm">
                         <div className="flex items-center gap-3">
-                           {isNight ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
-                           <span className="text-white tracking-tighter italic">
-                             {date.toLocaleDateString('en-PH', { day: '2-digit', month: 'short', year: 'numeric' })}
-                           </span>
+                          {isNight ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-amber-400" />}
+                          <span className="text-white tracking-tighter italic">
+                            {date.toLocaleDateString('en-PH', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </span>
                         </div>
                       </td>
                       <td className="p-6">
@@ -205,31 +177,31 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
           </table>
         </div>
 
-        {/* PAGINATION FOOTER - Responsive Flex */}
-        <div className="p-6 bg-indigo-500/5 flex flex-col sm:flex-row items-center justify-between border-t border-indigo-500/10 gap-4">
-          <p className="text-[9px] lg:text-[10px] text-indigo-400/50 font-black uppercase tracking-widest text-center sm:text-left">
-            Range: {indexOfFirstItem + 1} — {Math.min(indexOfLastItem, filteredLogs.length)} of {filteredLogs.length}
+        {/* PAGINATION FOOTER — matches AdminManageAcc style */}
+        <footer className="px-6 lg:px-10 py-6 bg-indigo-500/5 border-t border-indigo-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 italic">
+          <p className="text-[9px] text-slate-500 tracking-widest uppercase">
+            SHOWING <span className="text-indigo-400">{filteredLogs.length}</span> RECORDS
           </p>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+          <div className="flex items-center gap-6">
+            <button
               disabled={currentPage === 1}
-              className="p-2 rounded-xl border border-indigo-500/10 text-indigo-400 disabled:opacity-20 hover:bg-indigo-500/10 transition-all active:scale-95"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5 active:scale-95"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-[10px] lg:text-[11px] font-black text-white px-2">
-              PAGE {currentPage} <span className="text-slate-600 mx-1">/</span> {totalPages}
+            <span className="text-[9px] lg:text-[10px] text-white tracking-widest uppercase">
+              PAGE {currentPage} / {totalPages}
             </span>
-            <button 
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            <button
               disabled={currentPage === totalPages}
-              className="p-2 rounded-xl border border-indigo-500/10 text-indigo-400 disabled:opacity-20 hover:bg-indigo-500/10 transition-all active:scale-95"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              className="p-2 lg:p-2.5 rounded-xl border border-white/5 text-slate-500 hover:text-indigo-400 disabled:opacity-20 transition-all bg-white/5 active:scale-95"
             >
-              <ChevronRight size={18} />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-        </div>
+        </footer>
       </div>
 
       {/* FOOTER NOTICE */}
@@ -243,12 +215,12 @@ export const AttendanceTable = ({ startDate, endDate }: AttendanceTableProps) =>
   );
 };
 
-// HELPER COMPONENT
 const MetricBox = ({ label, val, unit, color }: { label: string, val: string, unit: string, color: string }) => (
   <div className="bg-indigo-950/20 p-6 lg:p-7 rounded-3xl lg:rounded-[2.5rem] border border-indigo-500/10 backdrop-blur-3xl shadow-xl group hover:border-indigo-500/30 transition-all">
     <p className="text-[9px] lg:text-[10px] font-black text-indigo-400/50 uppercase tracking-widest mb-1 group-hover:text-indigo-400 transition-colors">{label}</p>
-    <p className={`text-3xl lg:text-4xl font-black ${color} tracking-tighter uppercase italic truncate`}>
-      {val} <span className="text-[9px] lg:text-[10px] text-slate-600 font-bold tracking-normal ml-1 italic">{unit}</span>
-    </p>
+    <div className="flex items-end justify-between gap-2">
+      <span className="text-[9px] lg:text-[10px] text-slate-600 font-bold tracking-normal italic">{unit}</span>
+      <p className={`text-3xl lg:text-4xl font-black ${color} tracking-tighter uppercase italic`}>{val}</p>
+    </div>
   </div>
 );

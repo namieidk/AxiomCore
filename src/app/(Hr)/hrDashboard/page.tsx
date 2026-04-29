@@ -64,10 +64,10 @@ export default function HRDashboard() {
   }
 
   const stats = [
-    { label: 'ACTIVE HEADCOUNT',  val: data?.metrics.headcount   || '0',  icon: Users,     color: 'text-white' },
-    { label: 'OPEN REQUISITIONS', val: data?.metrics.requisitions || '0',  icon: Briefcase, color: 'text-indigo-400' },
-    { label: 'NEW APPLICANTS',    val: data?.metrics.applicants   || '0',  icon: UserPlus,  color: 'text-emerald-500' },
-    { label: 'ATTRITION RATE',    val: data?.metrics.attrition    || '0%', icon: TrendingUp, color: 'text-orange-400' },
+    { label: 'ACTIVE HEADCOUNT',  val: data?.metrics.headcount   || '0',  icon: Users,      color: 'text-white'       },
+    { label: 'OPEN REQUISITIONS', val: data?.metrics.requisitions || '0',  icon: Briefcase,  color: 'text-indigo-400'  },
+    { label: 'NEW APPLICANTS',    val: data?.metrics.applicants   || '0',  icon: UserPlus,   color: 'text-emerald-500' },
+    { label: 'ATTRITION RATE',    val: data?.metrics.attrition    || '0%', icon: TrendingUp, color: 'text-orange-400'  },
   ];
 
   return (
@@ -79,15 +79,15 @@ export default function HRDashboard() {
 
         <div className="p-6 md:p-12 max-w-[1600px] w-full mx-auto space-y-8 md:space-y-10">
 
-          {/* HR COMMAND METRICS - RESPONSIVE GRID */}
+          {/* HR COMMAND METRICS */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {stats.map((stat, i) => (
               <div key={i} className="bg-slate-900/40 border border-white/5 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex flex-col justify-between backdrop-blur-3xl group hover:border-indigo-500/30 transition-all shadow-xl">
-                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-white/5 flex items-center justify-center mb-4 md:mb-6 ${stat.color} shadow-lg shadow-black/20`}>
-                  <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
+                <div className={`w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white/5 flex items-center justify-center mb-4 ${stat.color} shadow-lg shadow-black/20`}>
+                  <stat.icon className="w-4 h-4 md:w-4.5 md:h-4.5" />
                 </div>
-                <div>
-                  <p className="text-[8px] md:text-[9px] font-black text-slate-600 tracking-widest mb-1">{stat.label}</p>
+                <div className="flex items-end justify-between gap-2">
+                  <p className="text-[8px] md:text-[9px] font-black text-slate-600 tracking-widest">{stat.label}</p>
                   <p className={`text-2xl md:text-3xl font-black tracking-tighter ${stat.color}`}>{stat.val}</p>
                 </div>
               </div>
@@ -96,7 +96,7 @@ export default function HRDashboard() {
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 md:gap-10">
 
-            {/* RECENT APPLICANTS LIST - RESPONSIVE CONTAINER */}
+            {/* RECENT APPLICANTS LIST */}
             <div className="xl:col-span-2 bg-slate-900/20 border border-white/5 rounded-[2.5rem] md:rounded-[3.5rem] overflow-hidden shadow-2xl backdrop-blur-md">
               <div className="px-6 md:px-10 py-6 md:py-8 border-b border-white/5 flex flex-col sm:flex-row justify-between items-center bg-white/5 gap-4">
                 <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.4em] text-white text-center sm:text-left">Pending Talent Pipeline</h3>
@@ -104,7 +104,7 @@ export default function HRDashboard() {
                   View All Applicants
                 </Link>
               </div>
-              
+
               <div className="divide-y divide-white/5 overflow-x-auto">
                 {data?.recentApplicants.map((applicant, i) => (
                   <div key={i} className="px-6 md:px-10 py-5 md:py-6 flex justify-between items-center hover:bg-white/5 transition-all group min-w-[500px] sm:min-w-full">
@@ -136,14 +136,14 @@ export default function HRDashboard() {
               </div>
             </div>
 
-            {/* CRITICAL COMPLIANCE ALERTS - RESPONSIVE LIST */}
+            {/* CRITICAL COMPLIANCE ALERTS */}
             <div className="space-y-6">
               <h3 className="text-[10px] font-black text-indigo-500 tracking-[0.4em] px-4 md:px-6">Compliance Radar</h3>
               <div className="space-y-4">
                 {[
-                  { title: 'PAYROLL FINALIZATION', body: 'Q1 Payroll logs require sign-off by EOD.',              urgent: true  },
-                  { title: 'LEAVE CONFLICT',       body: '3 Managers applied for overlapping leave dates.',       urgent: false },
-                  { title: 'SECURITY AUDIT',       body: '5 Employees missing biometric re-verification.',       urgent: true  },
+                  { title: 'PAYROLL FINALIZATION', body: 'Q1 Payroll logs require sign-off by EOD.',        urgent: true  },
+                  { title: 'LEAVE CONFLICT',       body: '3 Managers applied for overlapping leave dates.', urgent: false },
+                  { title: 'SECURITY AUDIT',       body: '5 Employees missing biometric re-verification.',  urgent: true  },
                 ].map((alert, i) => (
                   <div key={i} className={`p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border transition-all shadow-xl hover:scale-[1.02] ${
                     alert.urgent ? 'bg-red-500/5 border-red-500/20 shadow-red-500/5' : 'bg-slate-900/40 border-white/5'
@@ -164,7 +164,6 @@ export default function HRDashboard() {
 
           </div>
 
-          {/* Spacer for bottom navigation / scroll */}
           <div className="h-10" />
         </div>
       </section>
