@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 const ROLE_ROUTES: Record<string, string[]> = {
-  Applicants: ['/welcome', '/apply'],
+  APPLICANTS: ['/welcome', '/apply'],
   ADMIN: [
     '/adminDashboard', '/adminMessage', '/adminReports',
     '/adminSettings', '/Auditlogs', '/ManageAcc',
@@ -22,6 +22,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
 };
 
+// ✅ Added /apply here so unauthenticated applicants can access it
 const PUBLIC_ROUTES = ['/login', '/signup', '/welcome', '/apply', '/debug'];
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
 
@@ -29,8 +30,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lowercasePathname = pathname.toLowerCase();
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) => 
-    lowercasePathname === route.toLowerCase() || 
+  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+    lowercasePathname === route.toLowerCase() ||
     lowercasePathname.startsWith(`${route.toLowerCase()}/`)
   );
 
@@ -48,9 +49,11 @@ export async function middleware(request: NextRequest) {
       issuer: 'AxiomHRMS',
       audience: 'AxiomHRMSUsers',
     });
-    
+
     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
+
+    // ✅ toUpperCase() now matches the ROLE_ROUTES keys which are all uppercase
     const role = rawRole?.toUpperCase() ?? '';
 
     const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
@@ -61,12 +64,12 @@ export async function middleware(request: NextRequest) {
     }
 
     const allProtectedPaths = Object.values(ROLE_ROUTES).flat();
-    const isInsideProtectedArea = allProtectedPaths.some(p => 
+    const isInsideProtectedArea = allProtectedPaths.some(p =>
       lowercasePathname.startsWith(p.toLowerCase())
     );
 
     if (isInsideProtectedArea) {
-      const hasPermission = myAllowedRoutes.some(p => 
+      const hasPermission = myAllowedRoutes.some(p =>
         lowercasePathname.startsWith(p.toLowerCase())
       );
 
