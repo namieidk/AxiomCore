@@ -22,49 +22,67 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
 };
 
-const GUEST_ONLY_ROUTES = ['/login', '/signup', '/welcome', '/apply'];
-const TRULY_PUBLIC_ROUTES = ['/debug'];
+// /login is excluded here so logout redirect to /login still works
+const GUEST_ONLY_ROUTES = ['/signup', '/welcome', '/apply'];
+const PUBLIC_ROUTES = ['/login', '/signup', '/welcome', '/apply', '/debug'];
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lowercasePathname = pathname.toLowerCase();
 
-  const isTrulyPublic = TRULY_PUBLIC_ROUTES.some((route) =>
+  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
     lowercasePathname === route.toLowerCase() ||
     lowercasePathname.startsWith(`${route.toLowerCase()}/`)
   );
-  if (isTrulyPublic) return NextResponse.next();
+
+  // ✅ If public route, check if user is already logged in
+  if (isPublicRoute) {
+    const token = request.cookies.get('jwt')?.value;
+
+    // No token = not logged in, allow through freely
+    if (!token) return NextResponse.next();
+
+    // Has token — but /login is allowed even when logged in (needed for logout flow)
+    if (lowercasePathname === '/login') return NextResponse.next();
+
+    // For guest-only routes (/welcome, /apply, /signup), redirect logged-in users away
+    const isGuestOnly = GUEST_ONLY_ROUTES.some((route) =>
+      lowercasePathname === route.toLowerCase() ||
+      lowercasePathname.startsWith(`${route.toLowerCase()}/`)
+    );
+
+    if (isGuestOnly) {
+      try {
+        const { payload } = await jwtVerify(token, JWT_SECRET, {
+          issuer: 'AxiomHRMS',
+          audience: 'AxiomHRMSUsers',
+        });
+
+        const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+        const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
+        const role = rawRole?.toUpperCase() ?? '';
+        const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
+        const home = myAllowedRoutes[0] || '/Dashboard';
+
+        return NextResponse.redirect(new URL(home, request.url));
+      } catch {
+        // Token invalid/expired — clear it and let them through
+        const response = NextResponse.next();
+        response.cookies.delete('jwt');
+        return response;
+      }
+    }
+
+    return NextResponse.next();
+  }
+
+  // --- Everything below is unchanged from your working code ---
 
   const token = request.cookies.get('jwt')?.value;
 
-  const isGuestOnly = GUEST_ONLY_ROUTES.some((route) =>
-    lowercasePathname === route.toLowerCase() ||
-    lowercasePathname.startsWith(`${route.toLowerCase()}/`)
-  );
-
-  if (isGuestOnly) {
-    if (!token) return NextResponse.next();
-
-    try {
-      const { payload } = await jwtVerify(token, JWT_SECRET, {
-        issuer: 'AxiomHRMS',
-        audience: 'AxiomHRMSUsers',
-      });
-
-      const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-      const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
-      const role = rawRole?.toUpperCase() ?? '';
-      const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
-      const home = myAllowedRoutes[0] || '/Dashboard';
-
-      return NextResponse.redirect(new URL(home, request.url));
-    } catch {
-      const response = NextResponse.next();
-      response.cookies.delete('jwt');
-      return response;
-    }
-  }
   if (!token) {
+    if (pathname === '/login') return NextResponse.next();
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -102,7 +120,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
 
-  } catch {
+  } catch (err) {
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.delete('jwt');
     return response;
