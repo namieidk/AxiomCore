@@ -22,25 +22,49 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
 };
 
-// ✅ Added /apply here so unauthenticated applicants can access it
-const PUBLIC_ROUTES = ['/login', '/signup', '/welcome', '/apply', '/debug'];
+const GUEST_ONLY_ROUTES = ['/login', '/signup', '/welcome', '/apply'];
+const TRULY_PUBLIC_ROUTES = ['/debug'];
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const lowercasePathname = pathname.toLowerCase();
 
-  const isPublicRoute = PUBLIC_ROUTES.some((route) =>
+  const isTrulyPublic = TRULY_PUBLIC_ROUTES.some((route) =>
+    lowercasePathname === route.toLowerCase() ||
+    lowercasePathname.startsWith(`${route.toLowerCase()}/`)
+  );
+  if (isTrulyPublic) return NextResponse.next();
+
+  const token = request.cookies.get('jwt')?.value;
+
+  const isGuestOnly = GUEST_ONLY_ROUTES.some((route) =>
     lowercasePathname === route.toLowerCase() ||
     lowercasePathname.startsWith(`${route.toLowerCase()}/`)
   );
 
-  if (isPublicRoute) return NextResponse.next();
+  if (isGuestOnly) {
+    if (!token) return NextResponse.next();
 
-  const token = request.cookies.get('jwt')?.value;
+    try {
+      const { payload } = await jwtVerify(token, JWT_SECRET, {
+        issuer: 'AxiomHRMS',
+        audience: 'AxiomHRMSUsers',
+      });
 
+      const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+      const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
+      const role = rawRole?.toUpperCase() ?? '';
+      const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
+      const home = myAllowedRoutes[0] || '/Dashboard';
+
+      return NextResponse.redirect(new URL(home, request.url));
+    } catch {
+      const response = NextResponse.next();
+      response.cookies.delete('jwt');
+      return response;
+    }
+  }
   if (!token) {
-    if (pathname === '/login') return NextResponse.next();
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
@@ -52,10 +76,7 @@ export async function middleware(request: NextRequest) {
 
     const roleClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
     const rawRole = (payload[roleClaim] || payload['role'] || payload['Role']) as string;
-
-    // ✅ toUpperCase() now matches the ROLE_ROUTES keys which are all uppercase
     const role = rawRole?.toUpperCase() ?? '';
-
     const myAllowedRoutes = ROLE_ROUTES[role] ?? [];
 
     if (pathname === '/login' || pathname === '/' || pathname === '') {
@@ -81,7 +102,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
 
-  } catch (err) {
+  } catch {
     const response = NextResponse.redirect(new URL('/login', request.url));
     response.cookies.delete('jwt');
     return response;
