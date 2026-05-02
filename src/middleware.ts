@@ -22,7 +22,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
   ],
 };
 
-const PUBLIC_ROUTES = ['/login', '/signup', '/welcome', '/debug'];
+const PUBLIC_ROUTES = ['/login', '/signup', '/welcome', '/apply', '/debug'];
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET ?? '');
 
 export async function middleware(request: NextRequest) {
